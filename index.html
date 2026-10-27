@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07101f">
+<title>ZYQORIX — Mine ZQR</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:#050a14;
+  --panel:#0d1728;
+  --blue:#3288ff;
+  --cyan:#54e7ff;
+  --silver:#dce9ff;
+  --muted:#8293ad;
+  --border:rgba(100,160,255,.17);
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:radial-gradient(ellipse at top,#102746 0%,#07101f 48%,#040812 100%);
+  color:#f3f7ff;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+  padding-bottom:100px;
+}
+button {cursor:pointer; -webkit-tap-highlight-color:transparent}
+.app {max-width:520px;margin:auto;padding:17px 15px 30px}
+.topbar {display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.brand {font-size:22px;font-weight:950;letter-spacing:2px}
+.brand span {color:var(--cyan)}
+.badge {font-size:10px;border:1px solid var(--border);padding:6px 9px;border-radius:20px;color:var(--cyan)}
+.card {
+  background:linear-gradient(145deg,rgba(19,37,64,.96),rgba(9,17,32,.97));
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:17px;
+  margin-bottom:14px;
+  box-shadow:0 12px 32px rgba(0,0,0,.14);
+}
+.label {font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+.big {font-size:32px;font-weight:900;letter-spacing:-1px}
+.muted {color:var(--muted);font-size:12px}
+.btn {
+  border:0;border-radius:13px;padding:13px 14px;font-weight:800;
+  background:linear-gradient(100deg,#2375ff,#48cfff);color:#03101e;
+  width:100%;font-size:13px;
+}
+.btn.secondary {background:#142641;color:#dce9ff;border:1px solid var(--border)}
+.btn:disabled {opacity:.5;cursor:not-allowed}
+.grid2 {display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.stat {background:rgba(3,11,24,.5);border:1px solid var(--border);border-radius:15px;padding:13px}
+.stat strong {display:block;font-size:20px;margin-top:5px}
+.coin-wrap {display:flex;justify-content:center;padding:17px 0 20px}
+.coin {
+  height:155px;width:155px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 25%,#c7f5ff,#348aff 43%,#10336b 72%,#07162e);
+  border:5px solid #8deaff;
+  box-shadow:0 0 25px rgba(55,167,255,.4),inset 0 0 20px rgba(255,255,255,.2);
+  font-size:68px;font-weight:1000;color:white;
+  user-select:none;touch-action:manipulation;
+}
+.coin:active {transform:scale(.94)}
+.coin.pulse {animation:pulse .35s ease}
+@keyframes pulse {50%{transform:scale(1.07);filter:brightness(1.4)}}
+.progress {height:7px;background:#172640;border-radius:20px;overflow:hidden;margin:10px 0}
+.progress div {height:100%;width:0;background:linear-gradient(90deg,#287cff,#65f0ff);transition:width .3s}
+.page {display:none}
+.page.active {display:block}
+.nav {
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  display:flex;justify-content:space-around;gap:4px;
+  background:rgba(4,10,21,.96);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);padding:10px 5px calc(10px + env(safe-area-inset-bottom));
+}
+.nav button {background:none;border:0;color:#8496b1;font-size:10px;flex:1;padding:5px 0}
+.nav button span {display:block;font-size:20px;margin-bottom:3px}
+.nav button.active {color:var(--cyan)}
+.row {display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item {padding:13px 0;border-bottom:1px solid var(--border)}
+.item:last-child {border-bottom:0}
+.small-btn {background:#17375b;color:#bfeaff;border:1px solid #26568a;padding:8px 11px;border-radius:10px;font-size:11px;font-weight:800}
+.notice {font-size:11px;line-height:1.6;color:#a6bad4;background:rgba(40,90,150,.12);border:1px solid var(--border);padding:12px;border-radius:12px}
+.pill {font-size:10px;border-radius:20px;padding:5px 8px;background:#152b45;color:#9bdcff}
+input {width:100%;padding:12px;border-radius:12px;background:#061020;border:1px solid var(--border);color:white;margin:8px 0}
+h2 {font-size:19px;font-weight:900;margin:8px 0 15px}
+h3 {font-size:14px;font-weight:800}
+.toast {
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  background:#142b48;border:1px solid #3473a9;padding:12px 16px;border-radius:13px;
+  z-index:100;display:none;width:max-content;max-width:90%;font-size:12px
+}
+</style>
+</head>
+
+<body>
+<div id="toast" class="toast"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="brand">ZYQO<span>RIX</span></div>
+      <div class="muted">THE NEXT DIGITAL FRONTIER</div>
+    </div>
+    <div class="badge">● ZQR NETWORK</div>
+  </header>
+
+  <section id="mine-page" class="page active">
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="label">Welcome, miner</div>
+          <h2 id="displayName" style="margin:5px 0">Miner</h2>
+          <div class="muted" id="telegramUsername">Telegram Mini App</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pill" id="levelBadge">LEVEL 1</div>
+          <div class="muted" style="margin-top:7px" id="verifyBadge">Wallet unverified</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center">
+      <div class="label">Your App Pool Balance</div>
+      <div class="big"><span id="balance">0.00</span></div>
+      <div class="muted">ZQR · In-app rewards, not on-chain tokens</div>
+      <div class="coin-wrap">
+        <button class="coin" id="mineCoin" aria-label="Tap to mine ZQR">Z</button>
+      </div>
+      <div class="label">Tap to collect demo mining points</div>
+      <div class="progress"><div id="miningProgress"></div></div>
+      <div class="row muted">
+        <span id="tapCount">0 taps this session</span>
+        <span id="dailyRate">5 ZQR/day · planned</span>
+      </div>
+      <div class="notice" style="margin-top:15px;text-align:left">
+        Demo mode: tapping changes only this browser's local display. These points are not server-verified rewards and cannot be withdrawn.
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="stat"><div class="label">Miner Level</div><strong id="levelValue">1 / 1000</strong></div>
+      <div class="stat"><div class="label">Session Taps</div><strong id="tapValue">0</strong></div>
+      <div class="stat"><div class="label">Lifetime Earned</div><strong id="lifetimeValue">0 ZQR</strong></div>
+      <div class="stat"><div class="label">Team Rewards</div><strong>5%</strong></div>
+    </div>
+
+    <div class="card">
+      <h3>TON Wallet</h3>
+      <div class="muted" style="margin:6px 0 13px">Connect your TON wallet to prepare for verification.</div>
+      <div id="ton-connect"></div>
+      <div id="walletAddress" class="muted" style="margin-top:10px;word-break:break-all">No wallet connected</div>
+      <button class="btn secondary" id="verifyButton" style="margin-top:12px">Wallet verification — 0.1 TON</button>
+      <p class="muted" style="line-height:1.6;margin-bottom:0">Verification is not active until server-side payment and wallet-age checks are implemented. Do not send a payment through this demo.</p>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div><h3>Daily Check-in</h3><div class="muted">Rewards cycle every 7 days</div></div>
+        <span class="pill" id="checkinDay">DAY 1</span>
+      </div>
+      <div class="grid2" style="margin:14px 0">
+        <div class="stat"><div class="label">Today's Reward</div><strong id="checkinReward">2 ZQR</strong></div>
+        <div class="stat"><div class="label">Next Reward</div><strong id="nextReward">3 ZQR</strong></div>
+      </div>
+      <button class="btn" id="checkinButton">Claim Daily Check-in</button>
+    </div>
+  </section>
+
+  <section id="tasks-page" class="page">
+    <h2>Earn Rewards</h2>
+    <div class="card">
+      <div class="notice">Tasks below are examples. Rewards will only be credited after secure backend validation is configured.</div>
+      <div class="item row">
+        <div><h3>Join ZYQORIX Community</h3><div class="muted">Visit the community channel</div></div>
+        <button class="small-btn" data-task="channel">Open</button>
+      </div>
+      <div class="item row">
+        <div><h3>React to a Community Post</h3><div class="muted">Engage with project updates</div></div>
+        <button class="small-btn" data-task="post">Open</button>
+      </div>
+      <div class="item row">
+        <div><h3>Invite a Friend</h3><div class="muted">Share your personal referral link</div></div>
+        <button class="small-btn" data-task="invite">Share</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Spin & Win</h3>
+      <div class="muted" style="margin:8px 0 15px">One daily spin is planned for the rewards system.</div>
+      <div style="font-size:45px;text-align:center;margin:12px">🎡</div>
+      <button class="btn secondary" id="spinButton">Spin demo wheel</button>
+      <p class="muted">Demo only: no ZQR will be credited.</p>
+    </div>
+  </section>
+
+  <section id="miners-page" class="page">
+    <h2>Miner Levels</h2>
+    <div class="card">
+      <div class="label">Your Current Level</div>
+      <div class="big" id="minerLevelHeading">LEVEL 1</div>
+      <div class="muted">Level progression and purchases require server validation.</div>
+      <div class="progress"><div id="levelProgress"></div></div>
+      <div class="muted" id="levelProgressText">Demo progression only</div>
+    </div>
+    <div class="card">
+      <h3>Mining Rate Schedule</h3>
+      <div class="item row"><span>Level 1</span><strong>5 ZQR/day</strong></div>
+      <div class="item row"><span>Level 2</span><strong>6 ZQR/day</strong></div>
+      <div class="item row"><span>Level 3</span><strong>7 ZQR/day</strong></div>
+      <div class="item row"><span>Level 10</span><strong>14 ZQR/day</strong></div>
+      <div class="item row"><span>Level 1000</span><strong>1004 ZQR/day</strong></div>
+      <p class="muted">Proposed schedule: 5 + (level − 1) ZQR/day. Final rates and level thresholds must be confirmed before launch.</p>
+    </div>
+    <div class="card">
+      <h3>Buy a Level</h3>
+      <div class="muted">Choose a target level. Purchases are not enabled until TON payment verification is implemented.</div>
+      <input type="number" id="targetLevel" min="2" max="1000" placeholder="Target level: 2–1000">
+      <button class="btn secondary" id="buyLevelButton">Check Level (Demo)</button>
+    </div>
+  </section>
+
+  <section id="friends-page" class="page">
+    <h2>Friends & Team Wallet</h2>
+    <div class="card">
+      <div class="label">Your Referral Link</div>
+      <input id="referralLink" readonly value="Loading referral link…">
+      <button class="btn" id="copyReferralButton">Copy Referral Link</button>
+    </div>
+    <div class="grid2">
+      <div class="stat"><div class="label">Invited Friends</div><strong id="friendCount">0</strong></div>
+      <div class="stat"><div class="label">Team Rate</div><strong>5%</strong></div>
+    </div>
+    <div class="card">
+      <h3>How Referrals Work</h3>
+      <div class="item"><strong>100 ZQR referral reward</strong><p class="muted">Planned one-time reward after your friend uses the app on 3 distinct days and verifies their wallet.</p></div>
+      <div class="item"><strong>5% Team Wallet</strong><p class="muted">Planned share of eligible mining rewards earned by each qualified team member.</p></div>
+      <div class="notice">Referral totals and team rewards are not verified or credited by this frontend demo.</div>
+    </div>
+    <div class="card">
+      <h3>Your Team</h3>
+      <p class="muted">Your verified referral list will appear here after the secure backend is connected.</p>
+    </div>
+  </section>
+
+  <section id="profile-page" class="page">
+    <h2>Profile & Withdrawals</h2>
+    <div class="card">
+      <div class="row"><span class="muted">Project</span><strong>ZYQORIX</strong></div>
+      <div class="item row"><span class="muted">Token ticker</span><strong>ZQR</strong></div>
+      <div class="item row"><span class="muted">Telegram ID</span><strong id="profileTelegramId">Unavailable</strong></div>
+      <div class="item row"><span class="muted">Wallet status</span><strong id="profileWalletStatus">Not connected</strong></div>
+      <div class="item row"><span class="muted">App Pool</span><strong><span id="profileBalance">0.00</span> ZQR</strong></div>
+    </div>
+    <div class="card">
+      <h3>Withdraw ZQR</h3>
+      <div class="grid2" style="margin:12px 0">
+        <div class="stat"><div class="label">Minimum</div><strong>1,500 ZQR</strong></div>
+        <div class="stat"><div class="label">Per Request</div><strong>1,500 ZQR</strong></div>
+      </div>
+      <div class="notice">Withdrawals require a connected, verified wallet. One request per rolling 24 hours, with no new request until the previous one is resolved and the cooldown expires. Real withdrawals are disabled in this demo.</div>
+      <button class="btn secondary" id="withdrawButton" style="margin-top:14px">Withdrawal unavailable in demo</button>
+    </div>
+    <div class="card">
+      <h3>On-chain ZQR</h3>
+      <div class="big">—</div>
+      <div class="muted">Live token balance will appear after the correct ZQR jetton address and blockchain lookup are configured.</div>
+    </div>
+  </section>
+</div>
+
+<nav class="nav">
+  <button class="active" data-page="mine-page"><span>⛏️</span>Mine</button>
+  <button data-page="tasks-page"><span>🎁</span>Tasks</button>
+  <button data-page="miners-page"><span>⚡</span>Miners</button>
+  <button data-page="friends-page"><span>👥</span>Friends</button>
+  <button data-page="profile-page"><span>👤</span>Profile</button>
+</nav>
+
+<script>
+(() => {
+  "use strict";
+
+  // ZYQORIX (ZQR) configuration.
+  // The publishable key is intended for browser use.
+  // Secret/service-role keys must NEVER be placed in this file.
+  const SUPABASE_URL = "https://fqouhzxwmjfcynyxqqsz.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ENIIXoVDH-EQvxhhguDjEg_aGU8msbu";
+
+  // Replace this with the actual manifest URL after publishing it.
+  const TONCONNECT_MANIFEST =
+    "https://YOUR-GITHUB-USERNAME.github.io/zyqorix/tonconnect-manifest.json";
+
+  const CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
+  const STORAGE_PREFIX = "zyqorix_demo_";
+
+  const $ = id => document.getElementById(id);
+  const tg = window.Telegram?.WebApp;
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    try { tg.setHeaderColor("#07101f"); tg.setBackgroundColor("#07101f"); } catch (_) {}
+  }
+
+  // Supabase client is initialized, but no profile or balance writes are
+  // performed until authenticated server-side functions are available.
+  let supabaseClient = null;
+  if (window.supabase?.createClient) {
+    try {
+      supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+    } catch (e) {
+      console.error("Supabase initialization failed", e);
+    }
+  }
+
+  const telegramUser = tg?.initDataUnsafe?.user || null;
+  const telegramId = telegramUser?.id ? String(telegramUser.id) : null;
+  const displayName = telegramUser
+    ? [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(" ")
+    : "Miner";
+  const username = telegramUser?.username ? "@" + telegramUser.username : "Telegram user";
+
+  $("displayName").textContent = displayName || "Miner";
+  $("telegramUsername").textContent = username;
+  $("profileTelegramId").textContent = telegramId || "Open inside Telegram";
+
+  // Local demo values are not trusted balances and must not be used for payouts.
+  const readNumber = (key, fallback = 0) => {
+    const value = Number(localStorage.getItem(STORAGE_PREFIX + key));
+    return Number.isFinite(value) && value >= 0 ? value : fallback;
+  };
+  let demoBalance = readNumber("balance");
+  let lifetimeEarned = readNumber("lifetime");
+  let taps = readNumber("taps");
+  let level = Math.min(1000, Math.max(1, Math.floor(readNumber("level", 1))));
+  let checkinDate = localStorage.getItem(STORAGE_PREFIX + "checkinDate") || "";
+  let checkinStreak = Math.max(0, Math.floor(readNumber("checkinStreak")));
+  let walletAddress = "";
+  let walletUI = null;
+
+  function saveDemo() {
+    localStorage.setItem(STORAGE_PREFIX + "balance", String(demoBalance));
+    localStorage.setItem(STORAGE_PREFIX + "lifetime", String(lifetimeEarned));
+    localStorage.setItem(STORAGE_PREFIX + "taps", String(taps));
+    localStorage.setItem(STORAGE_PREFIX + "level", String(level));
+  }
+
+  function toast(message) {
+    const el = $("toast");
+    el.textContent = message;
+    el.style.display = "block";
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.style.display = "none", 2600);
+  }
+
+  function dayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  function yesterdayKey() {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  function render() {
+    $("balance").textContent = demoBalance.toLocaleString(undefined,{maximumFractionDigits:2});
+    $("profileBalance").textContent = demoBalance.toLocaleString(undefined,{maximumFractionDigits:2});
+    $("lifetimeValue").textContent = lifetimeEarned.toLocaleString(undefined,{maximumFractionDigits:2}) + " ZQR";
+    $("tapCount").textContent = `${taps} taps this session`;
+    $("tapValue").textContent = taps;
+    $("levelValue").textContent = `${level} / 1000`;
+    $("levelBadge").textContent = `LEVEL ${level}`;
+    $("minerLevelHeading").textContent = `LEVEL ${level}`;
+    $("miningProgress").style.width = `${Math.min(100, (taps % 10) * 10)}%`;
+    $("levelProgress").style.width = `${Math.min(100, (lifetimeEarned % 100) )}%`;
+    $("levelProgressText").textContent = "Lifetime demo points: " + lifetimeEarned.toLocaleString();
+    $("checkinDay").textContent = "DAY " + ((checkinStreak % 7) + 1);
+    const today = dayKey();
+    const alreadyClaimed = checkinDate === today;
+    const rewardIndex = alreadyClaimed ? checkinStreak % 7 : (checkinDate === yesterdayKey() ? checkinStreak % 7 : 0);
+    $("checkinReward").textContent = CHECKIN_REWARDS[rewardIndex] + " ZQR";
+    $("nextReward").textContent = CHECKIN_REWARDS[(rewardIndex + 1) % 7] + " ZQR";
+    $("checkinButton").disabled = alreadyClaimed;
+    $("checkinButton").textContent = alreadyClaimed ? "Already claimed today" : "Claim Daily Check-in";
+    $("profileWalletStatus").textContent = walletAddress ? "Connected · unverified" : "Not connected";
+    $("verifyBadge").textContent = walletAddress ? "Wallet unverified" : "Wallet unverified";
+    $("walletAddress").textContent = walletAddress || "No wallet connected";
+  }
+
+  $("mineCoin").addEventListener("click", () => {
+    taps += 1;
+    demoBalance += 0.01;
+    lifetimeEarned += 0.01;
+    saveDemo();
+    const coin = $("mineCoin");
+    coin.classList.remove("pulse");
+    void coin.offsetWidth;
+    coin.classList.add("pulse");
+    render();
+  });
+
+  $("checkinButton").addEventListener("click", () => {
+    const today = dayKey();
+    if (checkinDate === today) return toast("You've already checked in today.");
+    checkinStreak = checkinDate === yesterdayKey() ? checkinStreak + 1 : 0;
+    const reward = CHECKIN_REWARDS[checkinStreak % 7];
+    checkinDate = today;
+    localStorage.setItem(STORAGE_PREFIX + "checkinDate", checkinDate);
+    localStorage.setItem(STORAGE_PREFIX + "checkinStreak", String(checkinStreak));
+    // Demo only. This is deliberately not recorded as a real backend reward.
+    demoBalance += reward;
+    lifetimeEarned += reward;
+    saveDemo();
+    render();
+    toast(`Demo check-in: ${reward} ZQR display points.`);
+  });
+
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      $(button.dataset.page).classList.add("active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+
+  document.querySelectorAll("[data-task]").forEach(button => {
+    button.addEventListener("click", () => {
+      const task = button.dataset.task;
+      if (task === "channel") {
+        window.open("https://t.me/", "_blank");
+      } else if (task === "post") {
+        toast("Add your official ZYQORIX post link here.");
+      } else {
+        shareReferral();
+      }
+    });
+  });
+
+  $("spinButton").addEventListener("click", () => {
+    toast("Demo only. Real spins require server-side validation.");
+  });
+
+  $("buyLevelButton").addEventListener("click", () => {
+    const target = Number($("targetLevel").value);
+    if (!Number.isInteger(target) || target < 2 || target > 1000) {
+      return toast("Enter a whole-number level from 2 to 1000.");
+    }
+    toast("Level purchases are disabled until payment verification is implemented.");
+  });
+
+  $("verifyButton").addEventListener("click", () => {
+    if (!walletAddress) return toast("Connect your TON wallet first.");
+    toast("Verification is not active. Do not send a payment through this demo.");
+  });
+
+  $("withdrawButton").addEventListener("click", () => {
+    toast("Withdrawals are disabled until the secure backend is ready.");
+  });
+
+  function buildReferralLink() {
+    const base = "https://t.me/";
+    const botUsername = window.ZYQORIX_BOT_USERNAME;
+    if (botUsername && telegramId) {
+      return `${base}${botUsername}?start=${encodeURIComponent(telegramId)}`;
+    }
+    return telegramId ? `Referral ID: ${telegramId} (set bot username to create a link)` : "Open this app inside Telegram to get your referral link.";
+  }
+
+  function shareReferral() {
+    const link = $("referralLink").value;
+    if (tg?.openTelegramLink && link.startsWith("https://t.me/")) {
+      tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link));
+    } else if (navigator.share) {
+      navigator.share({title:"ZYQORIX (ZQR)",text:"Join me on ZYQORIX!",url:link}).catch(()=>{});
+    } else {
+      toast("Copy your referral link to share it.");
+    }
+  }
+
+  $("copyReferralButton").addEventListener("click", async () => {
+    const value = $("referralLink").value;
+    try {
+      await navigator.clipboard.writeText(value);
+      toast("Referral link copied.");
+    } catch (_) {
+      $("referralLink").select();
+      toast("Select and copy the text.");
+    }
+  });
+
+  $("referralLink").value = buildReferralLink();
+
+  // TON Connect initialization. Set TONCONNECT_MANIFEST to your real hosted
+  // manifest URL before using wallet connection.
+  try {
+    if (window.TON_CONNECT_UI?.TonConnectUI &&
+        !TONCONNECT_MANIFEST.includes("YOUR-GITHUB-USERNAME")) {
+      walletUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: TONCONNECT_MANIFEST,
+        buttonRootId: "ton-connect"
+      });
+      walletUI.onStatusChange(wallet => {
+        walletAddress = wallet?.account?.address || "";
+        render();
+      });
+    } else {
+      $("ton-connect").innerHTML =
+        '<button class="btn secondary" id="connectPlaceholder">Wallet connection setup pending</button>';
+      $("connectPlaceholder").addEventListener("click", () =>
+        toast("First publish the TON Connect manifest and update its URL in index.html.")
+      );
+    }
+  } catch (error) {
+    console.error("TON Connect initialization failed", error);
+    $("ton-connect").textContent = "Wallet connection setup pending.";
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
