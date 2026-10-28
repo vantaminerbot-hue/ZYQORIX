@@ -1,535 +1,355 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#07101f">
-<title>ZYQORIX — Mine ZQR</title>
-
+<title>ZYQORIX — Mine ZQR + Sound + Auto Mining</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root {
-  --bg:#050a14;
-  --panel:#0d1728;
-  --blue:#3288ff;
-  --cyan:#54e7ff;
-  --silver:#dce9ff;
-  --muted:#8293ad;
-  --border:rgba(100,160,255,.17);
-}
-* {box-sizing:border-box}
-body {
-  margin:0;
-  background:radial-gradient(ellipse at top,#102746 0%,#07101f 48%,#040812 100%);
-  color:#f3f7ff;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  min-height:100vh;
-  padding-bottom:100px;
-}
-button {cursor:pointer; -webkit-tap-highlight-color:transparent}
-.app {max-width:520px;margin:auto;padding:17px 15px 30px}
-.topbar {display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.brand {font-size:22px;font-weight:950;letter-spacing:2px}
-.brand span {color:var(--cyan)}
-.badge {font-size:10px;border:1px solid var(--border);padding:6px 9px;border-radius:20px;color:var(--cyan)}
-.card {
-  background:linear-gradient(145deg,rgba(19,37,64,.96),rgba(9,17,32,.97));
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:17px;
-  margin-bottom:14px;
-  box-shadow:0 12px 32px rgba(0,0,0,.14);
-}
-.label {font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
-.big {font-size:32px;font-weight:900;letter-spacing:-1px}
-.muted {color:var(--muted);font-size:12px}
-.btn {
-  border:0;border-radius:13px;padding:13px 14px;font-weight:800;
-  background:linear-gradient(100deg,#2375ff,#48cfff);color:#03101e;
-  width:100%;font-size:13px;
-}
-.btn.secondary {background:#142641;color:#dce9ff;border:1px solid var(--border)}
-.btn:disabled {opacity:.5;cursor:not-allowed}
-.grid2 {display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.stat {background:rgba(3,11,24,.5);border:1px solid var(--border);border-radius:15px;padding:13px}
-.stat strong {display:block;font-size:20px;margin-top:5px}
-.coin-wrap {display:flex;justify-content:center;padding:17px 0 20px}
-.coin {
-  height:155px;width:155px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 35% 25%,#c7f5ff,#348aff 43%,#10336b 72%,#07162e);
-  border:5px solid #8deaff;
-  box-shadow:0 0 25px rgba(55,167,255,.4),inset 0 0 20px rgba(255,255,255,.2);
-  font-size:68px;font-weight:1000;color:white;
-  user-select:none;touch-action:manipulation;
-}
-.coin:active {transform:scale(.94)}
-.coin.pulse {animation:pulse .35s ease}
-@keyframes pulse {50%{transform:scale(1.07);filter:brightness(1.4)}}
-.progress {height:7px;background:#172640;border-radius:20px;overflow:hidden;margin:10px 0}
-.progress div {height:100%;width:0;background:linear-gradient(90deg,#287cff,#65f0ff);transition:width .3s}
-.page {display:none}
-.page.active {display:block}
-.nav {
-  position:fixed;bottom:0;left:0;right:0;z-index:20;
-  display:flex;justify-content:space-around;gap:4px;
-  background:rgba(4,10,21,.96);backdrop-filter:blur(16px);
-  border-top:1px solid var(--border);padding:10px 5px calc(10px + env(safe-area-inset-bottom));
-}
-.nav button {background:none;border:0;color:#8496b1;font-size:10px;flex:1;padding:5px 0}
-.nav button span {display:block;font-size:20px;margin-bottom:3px}
-.nav button.active {color:var(--cyan)}
-.row {display:flex;justify-content:space-between;align-items:center;gap:12px}
-.item {padding:13px 0;border-bottom:1px solid var(--border)}
-.item:last-child {border-bottom:0}
-.small-btn {background:#17375b;color:#bfeaff;border:1px solid #26568a;padding:8px 11px;border-radius:10px;font-size:11px;font-weight:800}
-.notice {font-size:11px;line-height:1.6;color:#a6bad4;background:rgba(40,90,150,.12);border:1px solid var(--border);padding:12px;border-radius:12px}
-.pill {font-size:10px;border-radius:20px;padding:5px 8px;background:#152b45;color:#9bdcff}
-input {width:100%;padding:12px;border-radius:12px;background:#061020;border:1px solid var(--border);color:white;margin:8px 0}
-h2 {font-size:19px;font-weight:900;margin:8px 0 15px}
-h3 {font-size:14px;font-weight:800}
-.toast {
-  position:fixed;top:20px;left:50%;transform:translateX(-50%);
-  background:#142b48;border:1px solid #3473a9;padding:12px 16px;border-radius:13px;
-  z-index:100;display:none;width:max-content;max-width:90%;font-size:12px
-}
+:root{--bg:#050a14;--panel:#0d1728;--blue:#3288ff;--cyan:#54e7ff;--muted:#8293ad;--border:rgba(100,160,255,.17);--green:#3dff8a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#102746 0%,#07101f 48%,#040812 100%);background-attachment:fixed;color:#f3f7ff;font-family:system-ui,sans-serif;min-height:100vh;padding-bottom:100px}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{max-width:520px;margin:auto;padding:17px 15px 30px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.brand{font-size:22px;font-weight:950;letter-spacing:2px}.brand span{color:var(--cyan)}
+.badge{font-size:10px;border:1px solid var(--border);padding:6px 9px;border-radius:20px;color:var(--cyan)}
+.card{background:linear-gradient(145deg,rgba(19,37,64,.96),rgba(9,17,32,.97));border:1px solid var(--border);border-radius:20px;padding:17px;margin-bottom:14px}
+.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+.big{font-size:32px;font-weight:900}.muted{color:var(--muted);font-size:12px}
+.btn{border:0;border-radius:13px;padding:13px 14px;font-weight:800;background:linear-gradient(100deg,#2375ff,#48cfff);color:#03101e;width:100%;font-size:13px}
+.btn.secondary{background:#142641;color:#dce9ff;border:1px solid var(--border)}.btn:disabled{opacity:.45}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}.stat{background:rgba(3,11,24,.5);border:1px solid var(--border);border-radius:15px;padding:13px}.stat strong{display:block;font-size:20px;margin-top:5px}
+.coin-wrap{display:flex;justify-content:center;padding:17px 0 20px;position:relative}
+.coin{height:165px;width:165px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#c7f5ff,#348aff 43%,#10336b 72%,#07162e);border:5px solid #8deaff;box-shadow:0 0 30px rgba(55,167,255,.5),inset 0 0 20px rgba(255,255,255,.2);font-size:68px;font-weight:1000;color:white;user-select:none;position:relative}
+.coin:active{transform:scale(.94)}.coin.pulse{animation:pulse .35s ease}@keyframes pulse{50%{transform:scale(1.07);filter:brightness(1.4)}}
+.coin.mining{animation:miningGlow 1.5s infinite ease-in-out}@keyframes miningGlow{0%,100%{box-shadow:0 0 20px rgba(55,167,255,.4)}50%{box-shadow:0 0 45px rgba(55,167,255,.9),0 0 70px rgba(84,231,255,.4)}}
+.progress{height:7px;background:#172640;border-radius:20px;overflow:hidden;margin:10px 0}.progress div{height:100%;width:0;background:linear-gradient(90deg,#287cff,#65f0ff);transition:width .3s}
+.page{display:none}.page.active{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;justify-content:space-around;gap:4px;background:rgba(4,10,21,.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:10px 5px calc(10px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:#8496b1;font-size:10px;flex:1;padding:5px 0}.nav button span{display:block;font-size:20px;margin-bottom:3px}.nav button.active{color:var(--cyan)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.item{padding:13px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px}.item:last-child{border-bottom:0}
+.small-btn{background:#17375b;color:#bfeaff;border:1px solid #26568a;padding:8px 11px;border-radius:10px;font-size:11px;font-weight:800;white-space:nowrap}.small-btn:disabled{opacity:.4}
+.notice{font-size:11px;line-height:1.6;color:#a6bad4;background:rgba(40,90,150,.12);border:1px solid var(--border);padding:12px;border-radius:12px}
+.pill{font-size:10px;border-radius:20px;padding:5px 8px;background:#152b45;color:#9bdcff;white-space:nowrap}
+input{width:100%;padding:12px;border-radius:12px;background:#061020;border:1px solid var(--border);color:white;margin:8px 0}
+h2{font-size:19px;font-weight:900;margin:8px 0 15px}h3{font-size:14px;font-weight:800}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#142b48;border:1px solid #3473a9;padding:12px 16px;border-radius:13px;z-index:100;display:none;width:max-content;max-width:90%;font-size:12px}
+.check-pill{width:46px;height:72px;border-radius:14px;background:rgba(19,37,64,.9);border:2px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:800;transition:.2s}
+.check-pill.claimed{border-color:var(--green);background:rgba(61,255,138,.18);color:var(--green)}.check-pill.today{border-color:#ffe066;box-shadow:0 0 12px rgba(255,224,102,.3)}
+.task-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.friend-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);align-items:center}.friend-item:last-child{border-bottom:0}
+.tabs{display:flex;gap:8px;overflow:auto;padding-bottom:12px}.tabs button{font-size:11px;padding:7px 12px;border-radius:20px;background:#142641;border:1px solid var(--border);color:#9bdcff;white-space:nowrap}.tabs button.active{background:#dce9ff;color:#07101f;font-weight:900}
+.sound-btn{position:fixed;top:14px;right:14px;z-index:50;width:42px;height:42px;border-radius:50%;background:rgba(13,23,40,.95);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px}
+.mining-indicator{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:rgba(61,255,138,.12);border:1px solid rgba(61,255,138,.25);padding:4px 10px;border-radius:20px}
+.dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.float{position:absolute;font-weight:900;color:#54e7ff;font-size:18px;pointer-events:none;animation:floatUp 0.8s ease forwards}
+@keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(1.3);opacity:0}}
 </style>
 </head>
-
 <body>
 <div id="toast" class="toast"></div>
-
+<button id="soundBtn" class="sound-btn">🔊</button>
 <div class="app">
-  <header class="topbar">
-    <div>
-      <div class="brand">ZYQO<span>RIX</span></div>
-      <div class="muted">THE NEXT DIGITAL FRONTIER</div>
-    </div>
-    <div class="badge">● ZQR NETWORK</div>
-  </header>
+<header class="topbar"><div><div class="brand">ZYQO<span>RIX</span></div><div class="muted">THE NEXT DIGITAL FRONTIER</div></div><div class="badge">● ZQR NETWORK</div></header>
 
-  <section id="mine-page" class="page active">
-    <div class="card">
-      <div class="row">
-        <div>
-          <div class="label">Welcome, miner</div>
-          <h2 id="displayName" style="margin:5px 0">Miner</h2>
-          <div class="muted" id="telegramUsername">Telegram Mini App</div>
-        </div>
-        <div style="text-align:right">
-          <div class="pill" id="levelBadge">LEVEL 1</div>
-          <div class="muted" style="margin-top:7px" id="verifyBadge">Wallet unverified</div>
-        </div>
-      </div>
-    </div>
+<section id="mine-page" class="page active">
+<div class="card"><div class="row"><div><div class="label">Welcome, miner</div><h2 id="displayName" style="margin:5px 0">Miner</h2><div class="muted" id="telegramUsername">Telegram Mini App</div></div><div style="text-align:right"><div class="pill" id="levelBadge">LEVEL 1</div><div class="muted" style="margin-top:7px" id="verifyBadge">Wallet unverified</div></div></div></div>
 
-    <div class="card" style="text-align:center">
-      <div class="label">Your App Pool Balance</div>
-      <div class="big"><span id="balance">0.00</span></div>
-      <div class="muted">ZQR · In-app rewards, not on-chain tokens</div>
-      <div class="coin-wrap">
-        <button class="coin" id="mineCoin" aria-label="Tap to mine ZQR">Z</button>
-      </div>
-      <div class="label">Tap to collect demo mining points</div>
-      <div class="progress"><div id="miningProgress"></div></div>
-      <div class="row muted">
-        <span id="tapCount">0 taps this session</span>
-        <span id="dailyRate">5 ZQR/day · planned</span>
-      </div>
-      <div class="notice" style="margin-top:15px;text-align:left">
-        Demo mode: tapping changes only this browser's local display. These points are not server-verified rewards and cannot be withdrawn.
-      </div>
-    </div>
+<div class="card" style="text-align:center">
+<div class="row" style="justify-content:center;margin-bottom:8px"><span class="mining-indicator"><span class="dot"></span> MINING • <span id="rateDisplay">5.00 ZQR/day</span></span></div>
+<div class="label">Your App Pool Balance</div>
+<div class="big"><span id="balance">0.00</span></div>
+<div class="muted">ZQR · Tapping + Auto mining</div>
+<div class="coin-wrap" id="coinWrap"><button class="coin mining" id="mineCoin">Z</button></div>
+<div class="label">Tap to collect + Auto mines itself</div>
+<div class="progress"><div id="miningProgress"></div></div>
+<div class="row muted"><span id="tapCount">0 taps this session</span><span id="minedToday">+0.00 today</span></div>
+<div class="grid2" style="margin-top:14px;text-align:left">
+<div class="stat"><div class="label">Tap Power</div><strong>+0.01 ZQR/tap</strong></div>
+<div class="stat"><div class="label">Auto Rate</div><strong id="autoRate">0.000057 /sec</strong></div>
+</div>
+</div>
 
-    <div class="grid2">
-      <div class="stat"><div class="label">Miner Level</div><strong id="levelValue">1 / 1000</strong></div>
-      <div class="stat"><div class="label">Session Taps</div><strong id="tapValue">0</strong></div>
-      <div class="stat"><div class="label">Lifetime Earned</div><strong id="lifetimeValue">0 ZQR</strong></div>
-      <div class="stat"><div class="label">Team Rewards</div><strong>5%</strong></div>
-    </div>
+<div class="grid2">
+<div class="stat"><div class="label">Miner Level</div><strong id="levelValue">1 / 1000</strong></div>
+<div class="stat"><div class="label">On-chain ZQR</div><strong id="onChainVal">0</strong></div>
+<div class="stat"><div class="label">Lifetime Earned</div><strong id="lifetimeValue">0 ZQR</strong></div>
+<div class="stat"><div class="label">Team Rate</div><strong>5%</strong></div>
+</div>
 
-    <div class="card">
-      <h3>TON Wallet</h3>
-      <div class="muted" style="margin:6px 0 13px">Connect your TON wallet to prepare for verification.</div>
-      <div id="ton-connect"></div>
-      <div id="walletAddress" class="muted" style="margin-top:10px;word-break:break-all">No wallet connected</div>
-      <button class="btn secondary" id="verifyButton" style="margin-top:12px">Wallet verification — 0.1 TON</button>
-      <p class="muted" style="line-height:1.6;margin-bottom:0">Verification is not active until server-side payment and wallet-age checks are implemented. Do not send a payment through this demo.</p>
-    </div>
+<div class="card" style="margin-top:14px"><h3>TON Wallet</h3><div id="ton-connect"></div><div id="walletAddress" class="muted" style="margin-top:10px;word-break:break-all">No wallet connected</div><button class="btn secondary" id="verifyButton" style="margin-top:12px">Wallet verification — 0.1 TON</button></div>
+</section>
 
-    <div class="card">
-      <div class="row">
-        <div><h3>Daily Check-in</h3><div class="muted">Rewards cycle every 7 days</div></div>
-        <span class="pill" id="checkinDay">DAY 1</span>
-      </div>
-      <div class="grid2" style="margin:14px 0">
-        <div class="stat"><div class="label">Today's Reward</div><strong id="checkinReward">2 ZQR</strong></div>
-        <div class="stat"><div class="label">Next Reward</div><strong id="nextReward">3 ZQR</strong></div>
-      </div>
-      <button class="btn" id="checkinButton">Claim Daily Check-in</button>
-    </div>
-  </section>
+<section id="tasks-page" class="page">
+<h2>ZYQORIX Jobs + Sound</h2>
+<p class="muted" style="margin:-10px 0 14px">All = On-chain + Social + Partner • Sound ON 🔊</p>
+<div class="card"><div class="row"><div><h3>Daily Check-in</h3><div class="muted">24hrs cooldown • Green only when claimed</div></div><span class="pill" id="checkinDay">DAY 1 / 7</span></div><div style="display:flex;gap:6px;overflow:auto;padding:14px 0" id="checkinRow"></div><button class="btn" id="checkinButton">Claim</button><div class="muted" style="text-align:center;margin-top:10px;font-size:11px" id="cooldownText"></div></div>
+<div class="tabs" id="taskTabs"><button class="active" data-filter="all">All</button><button data-filter="onchain">On-chain</button><button data-filter="social">Social</button><button data-filter="partner">Partner</button></div>
+<div class="card" id="taskList">
+<div class="item" data-category="onchain"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:linear-gradient(135deg,#3dff8a,#2bb4a0)">💎</div><div style="flex:1"><h3>Hold 10,000 ZQR On-chain</h3><div class="muted">+5 ZQR every 24hrs</div><div class="muted" style="font-size:10px;color:#3dff8a" id="status-10k"></div></div></div><button class="small-btn" id="btn-10k" onclick="claimOnchain(10000,5,24,'10k')">Claim</button></div>
+<div class="item" data-category="onchain"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:linear-gradient(135deg,#ffe066,#ffb700)">👑</div><div style="flex:1"><h3>Hold 25,000 ZQR On-chain</h3><div class="muted">+15 ZQR every 48hrs</div><div class="muted" style="font-size:10px;color:#ffe066" id="status-25k"></div></div></div><button class="small-btn" id="btn-25k" onclick="claimOnchain(25000,15,48,'25k')">Claim</button></div>
+<div class="item" data-category="onchain"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:linear-gradient(135deg,#a78bfa,#5ae4ff)">🚀</div><div style="flex:1"><h3>Hold 50,000 ZQR On-chain</h3><div class="muted">+20 ZQR every 72hrs</div><div class="muted" style="font-size:10px;color:#a78bfa" id="status-50k"></div></div></div><button class="small-btn" id="btn-50k" onclick="claimOnchain(50000,20,72,'50k')">Claim</button></div>
+<div class="item" data-category="social" id="social-join-main"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:#5ae4ff">📢</div><div style="flex:1"><h3>Join ZYQORIX Channel</h3><div class="muted">t.me/ZYQORIX • +10 ZQR one-time then disappears</div><div class="muted" style="font-size:10px" id="status-join"></div></div></div><button class="small-btn" id="btn-join" onclick="doJoinMain()">Join</button></div>
+<div class="item" data-category="social"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:#ff7ab6">❤️</div><div style="flex:1"><h3>React to Latest News</h3><div class="muted">t.me/ZYQORIX • +5 ZQR / 6hrs</div><div class="muted" style="font-size:10px" id="status-react"></div></div></div><button class="small-btn" id="btn-react" onclick="doReact()">React</button></div>
+<div class="item" data-category="social"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:#3dff8a">💸</div><div style="flex:1"><h3>Join Payout Channel</h3><div class="muted">t.me/ZYQORIX_PAYOUT • +5 ZQR / 72hrs</div><div class="muted" style="font-size:10px" id="status-payout-join"></div></div></div><button class="small-btn" id="btn-payout-join" onclick="doPayoutJoin()">Join</button></div>
+<div class="item" data-category="social"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:#ffe066">📊</div><div style="flex:1"><h3>Check Latest Withdrawal</h3><div class="muted">t.me/ZYQORIX_PAYOUT • +3 ZQR / 24hrs</div><div class="muted" style="font-size:10px" id="status-withdraw-check"></div></div></div><button class="small-btn" id="btn-withdraw-check" onclick="doWithdrawCheck()">Check</button></div>
+<div class="item" data-category="partner"><div style="display:flex;gap:12px;align-items:center;flex:1"><div class="task-icon" style="background:#ffb700">🎮</div><div style="flex:1"><h3>Play Partner Game</h3><div class="muted">Partner • +20 ZQR</div></div></div><button class="small-btn">Play</button></div>
+</div>
+</section>
 
-  <section id="tasks-page" class="page">
-    <h2>Earn Rewards</h2>
-    <div class="card">
-      <div class="notice">Tasks below are examples. Rewards will only be credited after secure backend validation is configured.</div>
-      <div class="item row">
-        <div><h3>Join ZYQORIX Community</h3><div class="muted">Visit the community channel</div></div>
-        <button class="small-btn" data-task="channel">Open</button>
-      </div>
-      <div class="item row">
-        <div><h3>React to a Community Post</h3><div class="muted">Engage with project updates</div></div>
-        <button class="small-btn" data-task="post">Open</button>
-      </div>
-      <div class="item row">
-        <div><h3>Invite a Friend</h3><div class="muted">Share your personal referral link</div></div>
-        <button class="small-btn" data-task="invite">Share</button>
-      </div>
-    </div>
+<section id="miners-page" class="page"><h2>Miner Levels</h2><div class="card"><div class="label">Your Level</div><div class="big" id="minerLevelHeading">LEVEL 1</div><div class="progress"><div id="levelProgress"></div></div><div class="muted" id="levelProgressText"></div></div></section>
 
-    <div class="card">
-      <h3>Spin & Win</h3>
-      <div class="muted" style="margin:8px 0 15px">One daily spin is planned for the rewards system.</div>
-      <div style="font-size:45px;text-align:center;margin:12px">🎡</div>
-      <button class="btn secondary" id="spinButton">Spin demo wheel</button>
-      <p class="muted">Demo only: no ZQR will be credited.</p>
-    </div>
-  </section>
+<section id="friends-page" class="page">
+<h2>Friends & Team Wallet — ZYQORIX</h2>
+<div class="card" style="background:linear-gradient(135deg,#1e3a6b,#142641)"><div style="font-size:16px;font-weight:900">Build your ZYQORIX crew!</div><div class="grid2" style="margin-top:12px"><div class="stat" style="background:white;color:black;text-align:center"><div class="label" style="color:black">REFERRAL</div><strong>100 ZQR</strong></div><div class="stat" style="background:white;color:black;text-align:center"><div class="label" style="color:black">TEAM</div><strong>5%</strong></div></div><div class="notice" style="margin-top:12px">Friend must use app 3 days AND verify wallet → 100 ZQR. 5% of all mining forever.</div></div>
+<div class="card"><div class="label">Referral Link</div><input id="referralLink" readonly value="Loading..."><button class="btn" id="copyReferralButton">Copy Link</button></div>
+<div class="grid2"><div class="stat"><div class="label">Invited</div><strong id="friendCount">3</strong></div><div class="stat"><div class="label">Qualified</div><strong id="qualifiedCount" style="color:#3dff8a">1</strong></div><div class="stat"><div class="label">Team Wallet</div><strong id="teamWallet" style="color:#ffe066">12.5 ZQR</strong></div><div class="stat"><div class="label">Team Earnings</div><strong>250 ZQR</strong></div></div>
+<div class="card"><h3>Your Team — Names Show</h3>
+<div class="friend-item"><div style="width:44px;height:44px;background:linear-gradient(135deg,#5ae4ff,#2d8cff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900">A</div><div style="flex:1"><div style="font-weight:800">Ademex King 👑</div><div class="muted">@KingAdemex23 • Day 2/3</div></div><div style="text-align:right"><div style="font-size:12px;color:#ff7a3d;font-weight:800">Pending</div><div class="muted" style="font-size:10px">100 ZQR locked</div></div></div>
+<div class="friend-item"><div style="width:44px;height:44px;background:linear-gradient(135deg,#3dff8a,#2bb4a0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900">S</div><div style="flex:1"><div style="font-weight:800">Sarah • Crypto Queen</div><div class="muted">@SarahZQR • Day 5/3 ✅</div></div><div style="text-align:right"><button class="small-btn" style="background:#3dff8a;color:black" onclick="claimReferral('Sarah')">Claim 100 ZQR</button></div></div>
+<div class="friend-item"><div style="width:44px;height:44px;background:linear-gradient(135deg,#a78bfa,#5ae4ff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900">M</div><div style="flex:1"><div style="font-weight:800">Mike • ZYQORIX Miner</div><div class="muted">@MikeMiner • Day 1/3</div></div><div style="text-align:right"><div style="font-size:12px;color:#ff7a3d;font-weight:800">Pending</div><div class="muted" style="font-size:10px">5% active</div></div></div>
+</div>
+</section>
 
-  <section id="miners-page" class="page">
-    <h2>Miner Levels</h2>
-    <div class="card">
-      <div class="label">Your Current Level</div>
-      <div class="big" id="minerLevelHeading">LEVEL 1</div>
-      <div class="muted">Level progression and purchases require server validation.</div>
-      <div class="progress"><div id="levelProgress"></div></div>
-      <div class="muted" id="levelProgressText">Demo progression only</div>
-    </div>
-    <div class="card">
-      <h3>Mining Rate Schedule</h3>
-      <div class="item row"><span>Level 1</span><strong>5 ZQR/day</strong></div>
-      <div class="item row"><span>Level 2</span><strong>6 ZQR/day</strong></div>
-      <div class="item row"><span>Level 3</span><strong>7 ZQR/day</strong></div>
-      <div class="item row"><span>Level 10</span><strong>14 ZQR/day</strong></div>
-      <div class="item row"><span>Level 1000</span><strong>1004 ZQR/day</strong></div>
-      <p class="muted">Proposed schedule: 5 + (level − 1) ZQR/day. Final rates and level thresholds must be confirmed before launch.</p>
-    </div>
-    <div class="card">
-      <h3>Buy a Level</h3>
-      <div class="muted">Choose a target level. Purchases are not enabled until TON payment verification is implemented.</div>
-      <input type="number" id="targetLevel" min="2" max="1000" placeholder="Target level: 2–1000">
-      <button class="btn secondary" id="buyLevelButton">Check Level (Demo)</button>
-    </div>
-  </section>
-
-  <section id="friends-page" class="page">
-    <h2>Friends & Team Wallet</h2>
-    <div class="card">
-      <div class="label">Your Referral Link</div>
-      <input id="referralLink" readonly value="Loading referral link…">
-      <button class="btn" id="copyReferralButton">Copy Referral Link</button>
-    </div>
-    <div class="grid2">
-      <div class="stat"><div class="label">Invited Friends</div><strong id="friendCount">0</strong></div>
-      <div class="stat"><div class="label">Team Rate</div><strong>5%</strong></div>
-    </div>
-    <div class="card">
-      <h3>How Referrals Work</h3>
-      <div class="item"><strong>100 ZQR referral reward</strong><p class="muted">Planned one-time reward after your friend uses the app on 3 distinct days and verifies their wallet.</p></div>
-      <div class="item"><strong>5% Team Wallet</strong><p class="muted">Planned share of eligible mining rewards earned by each qualified team member.</p></div>
-      <div class="notice">Referral totals and team rewards are not verified or credited by this frontend demo.</div>
-    </div>
-    <div class="card">
-      <h3>Your Team</h3>
-      <p class="muted">Your verified referral list will appear here after the secure backend is connected.</p>
-    </div>
-  </section>
-
-  <section id="profile-page" class="page">
-    <h2>Profile & Withdrawals</h2>
-    <div class="card">
-      <div class="row"><span class="muted">Project</span><strong>ZYQORIX</strong></div>
-      <div class="item row"><span class="muted">Token ticker</span><strong>ZQR</strong></div>
-      <div class="item row"><span class="muted">Telegram ID</span><strong id="profileTelegramId">Unavailable</strong></div>
-      <div class="item row"><span class="muted">Wallet status</span><strong id="profileWalletStatus">Not connected</strong></div>
-      <div class="item row"><span class="muted">App Pool</span><strong><span id="profileBalance">0.00</span> ZQR</strong></div>
-    </div>
-    <div class="card">
-      <h3>Withdraw ZQR</h3>
-      <div class="grid2" style="margin:12px 0">
-        <div class="stat"><div class="label">Minimum</div><strong>1,500 ZQR</strong></div>
-        <div class="stat"><div class="label">Per Request</div><strong>1,500 ZQR</strong></div>
-      </div>
-      <div class="notice">Withdrawals require a connected, verified wallet. One request per rolling 24 hours, with no new request until the previous one is resolved and the cooldown expires. Real withdrawals are disabled in this demo.</div>
-      <button class="btn secondary" id="withdrawButton" style="margin-top:14px">Withdrawal unavailable in demo</button>
-    </div>
-    <div class="card">
-      <h3>On-chain ZQR</h3>
-      <div class="big">—</div>
-      <div class="muted">Live token balance will appear after the correct ZQR jetton address and blockchain lookup are configured.</div>
-    </div>
-  </section>
+<section id="profile-page" class="page"><h2>Profile</h2><div class="card"><div class="row"><span class="muted">Project</span><strong>ZYQORIX</strong></div><div class="item"><span class="muted">Telegram ID</span><strong id="profileTelegramId">Unavailable</strong></div><div class="item"><span class="muted">Wallet</span><strong id="profileWalletStatus">Not connected</strong></div><div class="item"><span class="muted">App Pool</span><strong><span id="profileBalance">0.00</span> ZQR</strong></div></div></section>
 </div>
 
 <nav class="nav">
-  <button class="active" data-page="mine-page"><span>⛏️</span>Mine</button>
-  <button data-page="tasks-page"><span>🎁</span>Tasks</button>
-  <button data-page="miners-page"><span>⚡</span>Miners</button>
-  <button data-page="friends-page"><span>👥</span>Friends</button>
-  <button data-page="profile-page"><span>👤</span>Profile</button>
+<button class="active" data-page="mine-page"><span>⛏️</span>Mine</button>
+<button data-page="tasks-page"><span>🎁</span>Tasks</button>
+<button data-page="miners-page"><span>⚡</span>Miners</button>
+<button data-page="friends-page"><span>👥</span>Friends</button>
+<button data-page="profile-page"><span>👤</span>Profile</button>
 </nav>
 
 <script>
 (() => {
-  "use strict";
+"use strict";
+let audioCtx=null;
+let soundEnabled=localStorage.getItem('zqr_sound')!=='off';
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx;}
+function playTone(freq,type,dur,vol,slide){
+ if(!soundEnabled) return;
+ try{
+  const ctx=getCtx();
+  const o=ctx.createOscillator(); const g=ctx.createGain();
+  o.type=type||'sine'; o.frequency.value=freq;
+  if(slide) o.frequency.linearRampToValueAtTime(slide,ctx.currentTime+dur*0.8);
+  g.gain.setValueAtTime(vol||0.2,ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime+dur);
+ }catch(e){}
+}
+function playTapSound(){playTone(900,'sine',0.08,0.15,600);}
+function playCoinSound(){playTone(1200,'sine',0.1,0.2,1800); setTimeout(()=>playTone(1800,'sine',0.12,0.15),60);}
+function playClaimSound(){playTone(500,'sine',0.12,0.25,800); setTimeout(()=>playTone(800,'sine',0.15,0.25,1200),80); setTimeout(()=>playTone(1200,'sine',0.25,0.3),180);}
+function playCheckinSound(){playTone(600,'sine',0.1,0.2,900); setTimeout(()=>playTone(900,'sine',0.1,0.2,1200),100); setTimeout(()=>playTone(1200,'sine',0.2,0.25,1600),200);}
+function playErrorSound(){playTone(200,'sawtooth',0.3,0.15,80);}
 
-  // ZYQORIX (ZQR) configuration.
-  // The publishable key is intended for browser use.
-  // Secret/service-role keys must NEVER be placed in this file.
-  const SUPABASE_URL = "https://fqouhzxwmjfcynyxqqsz.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ENIIXoVDH-EQvxhhguDjEg_aGU8msbu";
+const CHECKIN_REWARDS=[5,6,7,8,9,10,15];
+const STORAGE_PREFIX="zyqorix_demo_";
+const $=id=>document.getElementById(id);
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();try{tg.setHeaderColor("#07101f");tg.setBackgroundColor("#07101f");}catch(_){}}
+const telegramUser=tg?.initDataUnsafe?.user||null;
+const telegramId=telegramUser?.id?String(telegramUser.id):null;
+$("displayName").textContent=telegramUser?[telegramUser.first_name,telegramUser.last_name].filter(Boolean).join(" "):"Miner";
+$("telegramUsername").textContent=telegramUser?.username?"@"+telegramUser.username:"Telegram user";
+$("profileTelegramId").textContent=telegramId||"Open inside Telegram";
+const readNumber=(key,fallback=0)=>{const v=Number(localStorage.getItem(STORAGE_PREFIX+key));return Number.isFinite(v)&&v>=0?v:fallback;};
+let demoBalance=readNumber("balance");
+let lifetimeEarned=readNumber("lifetime");
+let taps=readNumber("taps");
+let level=Math.max(1,Math.floor(readNumber("level",1)));
+let walletAddress="";
+let onChainBalance=Number(localStorage.getItem("zqr_onchain_demo")||12000);
+let minedToday=Number(localStorage.getItem("zqr_mined_today")||0);
+let lastMinedTime=Number(localStorage.getItem("zqr_last_mined_time")||Date.now());
 
-  // Replace this with the actual manifest URL after publishing it.
-  const TONCONNECT_MANIFEST =
-    "https://YOUR-GITHUB-USERNAME.github.io/zyqorix/tonconnect-manifest.json";
+function saveDemo(){localStorage.setItem(STORAGE_PREFIX+"balance",String(demoBalance));localStorage.setItem(STORAGE_PREFIX+"lifetime",String(lifetimeEarned));localStorage.setItem(STORAGE_PREFIX+"taps",String(taps));localStorage.setItem(STORAGE_PREFIX+"level",String(level));localStorage.setItem("zqr_mined_today",String(minedToday));localStorage.setItem("zqr_last_mined_time",String(Date.now()));}
+function toast(msg){const el=$("toast");el.textContent=msg;el.style.display="block";clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.style.display="none",3000);}
 
-  const CHECKIN_REWARDS = [2, 3, 4, 5, 6, 7, 10];
-  const STORAGE_PREFIX = "zyqorix_demo_";
+function getMiningRate(){
+  const dailyRate = 5 + (level - 1);
+  return { daily: dailyRate, perSec: dailyRate / 86400 };
+}
 
-  const $ = id => document.getElementById(id);
-  const tg = window.Telegram?.WebApp;
-
-  if (tg) {
-    tg.ready();
-    tg.expand();
-    try { tg.setHeaderColor("#07101f"); tg.setBackgroundColor("#07101f"); } catch (_) {}
-  }
-
-  // Supabase client is initialized, but no profile or balance writes are
-  // performed until authenticated server-side functions are available.
-  let supabaseClient = null;
-  if (window.supabase?.createClient) {
-    try {
-      supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
-    } catch (e) {
-      console.error("Supabase initialization failed", e);
-    }
-  }
-
-  const telegramUser = tg?.initDataUnsafe?.user || null;
-  const telegramId = telegramUser?.id ? String(telegramUser.id) : null;
-  const displayName = telegramUser
-    ? [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(" ")
-    : "Miner";
-  const username = telegramUser?.username ? "@" + telegramUser.username : "Telegram user";
-
-  $("displayName").textContent = displayName || "Miner";
-  $("telegramUsername").textContent = username;
-  $("profileTelegramId").textContent = telegramId || "Open inside Telegram";
-
-  // Local demo values are not trusted balances and must not be used for payouts.
-  const readNumber = (key, fallback = 0) => {
-    const value = Number(localStorage.getItem(STORAGE_PREFIX + key));
-    return Number.isFinite(value) && value >= 0 ? value : fallback;
-  };
-  let demoBalance = readNumber("balance");
-  let lifetimeEarned = readNumber("lifetime");
-  let taps = readNumber("taps");
-  let level = Math.min(1000, Math.max(1, Math.floor(readNumber("level", 1))));
-  let checkinDate = localStorage.getItem(STORAGE_PREFIX + "checkinDate") || "";
-  let checkinStreak = Math.max(0, Math.floor(readNumber("checkinStreak")));
-  let walletAddress = "";
-  let walletUI = null;
-
-  function saveDemo() {
-    localStorage.setItem(STORAGE_PREFIX + "balance", String(demoBalance));
-    localStorage.setItem(STORAGE_PREFIX + "lifetime", String(lifetimeEarned));
-    localStorage.setItem(STORAGE_PREFIX + "taps", String(taps));
-    localStorage.setItem(STORAGE_PREFIX + "level", String(level));
-  }
-
-  function toast(message) {
-    const el = $("toast");
-    el.textContent = message;
-    el.style.display = "block";
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => el.style.display = "none", 2600);
-  }
-
-  function dayKey() {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  }
-
-  function yesterdayKey() {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  }
-
-  function render() {
-    $("balance").textContent = demoBalance.toLocaleString(undefined,{maximumFractionDigits:2});
-    $("profileBalance").textContent = demoBalance.toLocaleString(undefined,{maximumFractionDigits:2});
-    $("lifetimeValue").textContent = lifetimeEarned.toLocaleString(undefined,{maximumFractionDigits:2}) + " ZQR";
-    $("tapCount").textContent = `${taps} taps this session`;
-    $("tapValue").textContent = taps;
-    $("levelValue").textContent = `${level} / 1000`;
-    $("levelBadge").textContent = `LEVEL ${level}`;
-    $("minerLevelHeading").textContent = `LEVEL ${level}`;
-    $("miningProgress").style.width = `${Math.min(100, (taps % 10) * 10)}%`;
-    $("levelProgress").style.width = `${Math.min(100, (lifetimeEarned % 100) )}%`;
-    $("levelProgressText").textContent = "Lifetime demo points: " + lifetimeEarned.toLocaleString();
-    $("checkinDay").textContent = "DAY " + ((checkinStreak % 7) + 1);
-    const today = dayKey();
-    const alreadyClaimed = checkinDate === today;
-    const rewardIndex = alreadyClaimed ? checkinStreak % 7 : (checkinDate === yesterdayKey() ? checkinStreak % 7 : 0);
-    $("checkinReward").textContent = CHECKIN_REWARDS[rewardIndex] + " ZQR";
-    $("nextReward").textContent = CHECKIN_REWARDS[(rewardIndex + 1) % 7] + " ZQR";
-    $("checkinButton").disabled = alreadyClaimed;
-    $("checkinButton").textContent = alreadyClaimed ? "Already claimed today" : "Claim Daily Check-in";
-    $("profileWalletStatus").textContent = walletAddress ? "Connected · unverified" : "Not connected";
-    $("verifyBadge").textContent = walletAddress ? "Wallet unverified" : "Wallet unverified";
-    $("walletAddress").textContent = walletAddress || "No wallet connected";
-  }
-
-  $("mineCoin").addEventListener("click", () => {
-    taps += 1;
-    demoBalance += 0.01;
-    lifetimeEarned += 0.01;
-    saveDemo();
-    const coin = $("mineCoin");
-    coin.classList.remove("pulse");
-    void coin.offsetWidth;
-    coin.classList.add("pulse");
-    render();
-  });
-
-  $("checkinButton").addEventListener("click", () => {
-    const today = dayKey();
-    if (checkinDate === today) return toast("You've already checked in today.");
-    checkinStreak = checkinDate === yesterdayKey() ? checkinStreak + 1 : 0;
-    const reward = CHECKIN_REWARDS[checkinStreak % 7];
-    checkinDate = today;
-    localStorage.setItem(STORAGE_PREFIX + "checkinDate", checkinDate);
-    localStorage.setItem(STORAGE_PREFIX + "checkinStreak", String(checkinStreak));
-    // Demo only. This is deliberately not recorded as a real backend reward.
-    demoBalance += reward;
-    lifetimeEarned += reward;
+function autoMineTick(){
+  const now=Date.now();
+  const elapsed = (now - lastMinedTime)/1000;
+  if(elapsed < 1) return;
+  const rate = getMiningRate();
+  const earned = rate.perSec * elapsed;
+  if(earned > 0){
+    demoBalance += earned;
+    lifetimeEarned += earned;
+    minedToday += earned;
+    lastMinedTime = now;
     saveDemo();
     render();
-    toast(`Demo check-in: ${reward} ZQR display points.`);
-  });
-
-  document.querySelectorAll(".nav button").forEach(button => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      $(button.dataset.page).classList.add("active");
-      window.scrollTo({top:0,behavior:"smooth"});
-    });
-  });
-
-  document.querySelectorAll("[data-task]").forEach(button => {
-    button.addEventListener("click", () => {
-      const task = button.dataset.task;
-      if (task === "channel") {
-        window.open("https://t.me/", "_blank");
-      } else if (task === "post") {
-        toast("Add your official ZYQORIX post link here.");
-      } else {
-        shareReferral();
-      }
-    });
-  });
-
-  $("spinButton").addEventListener("click", () => {
-    toast("Demo only. Real spins require server-side validation.");
-  });
-
-  $("buyLevelButton").addEventListener("click", () => {
-    const target = Number($("targetLevel").value);
-    if (!Number.isInteger(target) || target < 2 || target > 1000) {
-      return toast("Enter a whole-number level from 2 to 1000.");
-    }
-    toast("Level purchases are disabled until payment verification is implemented.");
-  });
-
-  $("verifyButton").addEventListener("click", () => {
-    if (!walletAddress) return toast("Connect your TON wallet first.");
-    toast("Verification is not active. Do not send a payment through this demo.");
-  });
-
-  $("withdrawButton").addEventListener("click", () => {
-    toast("Withdrawals are disabled until the secure backend is ready.");
-  });
-
-  function buildReferralLink() {
-    const base = "https://t.me/";
-    const botUsername = window.ZYQORIX_BOT_USERNAME;
-    if (botUsername && telegramId) {
-      return `${base}${botUsername}?start=${encodeURIComponent(telegramId)}`;
-    }
-    return telegramId ? `Referral ID: ${telegramId} (set bot username to create a link)` : "Open this app inside Telegram to get your referral link.";
   }
+}
+setInterval(autoMineTick, 1000);
 
-  function shareReferral() {
-    const link = $("referralLink").value;
-    if (tg?.openTelegramLink && link.startsWith("https://t.me/")) {
-      tg.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(link));
-    } else if (navigator.share) {
-      navigator.share({title:"ZYQORIX (ZQR)",text:"Join me on ZYQORIX!",url:link}).catch(()=>{});
-    } else {
-      toast("Copy your referral link to share it.");
-    }
-  }
+let lastClaim=Number(localStorage.getItem("zqr_checkin_last")||0);
+let streak=Number(localStorage.getItem("zqr_checkin_streak")||0);
+let claimedDays=JSON.parse(localStorage.getItem("zqr_claimed_days")||"[]");
+function renderCheckin(){
+ let row=$("checkinRow");row.innerHTML="";let now=Date.now();let canClaim=now-lastClaim>=24*3600000;
+ for(let i=1;i<=7;i++){let d=document.createElement("div");d.className="check-pill";if(claimedDays.includes(i))d.classList.add("claimed");if(i===streak+1&&!claimedDays.includes(i)&&canClaim)d.classList.add("today");d.innerHTML="<div>D"+i+"</div><div style='margin-top:4px'>"+(claimedDays.includes(i)?"✓":"○")+"</div><div style='font-size:10px;margin-top:2px'>+"+CHECKIN_REWARDS[i-1]+"</div>";row.appendChild(d);}
+ $("checkinDay").textContent="DAY "+(streak+1)+" / 7";
+ let btn=$("checkinButton");
+ if(!canClaim){let remain=24*3600000-(now-lastClaim);let h=Math.floor(remain/3600000);let m=Math.floor((remain%3600000)/60000);btn.disabled=true;btn.textContent="Come back in "+h+"h "+m+"m (24hr)";$("cooldownText").textContent="Green = only claimed • "+h+"h "+m+"m left";}else{btn.disabled=false;btn.textContent="Claim Day "+(streak+1)+" • +"+CHECKIN_REWARDS[streak%7]+" ZQR";$("cooldownText").textContent="Ready! Green = only claimed";}
+}
+$("checkinButton").addEventListener("click",()=>{
+ let now=Date.now();if(now-lastClaim<24*3600000){playErrorSound(); return toast("Wait 24hrs - ZYQORIX");}
+ let day=streak+1;if(day>7){day=1;claimedDays=[];}claimedDays.push(day);streak=day%7;lastClaim=now;
+ localStorage.setItem("zqr_checkin_last",String(lastClaim));localStorage.setItem("zqr_checkin_streak",String(streak));localStorage.setItem("zqr_claimed_days",JSON.stringify(claimedDays));
+ let reward=CHECKIN_REWARDS[(day-1)%7];demoBalance+=reward;lifetimeEarned+=reward;saveDemo();render();renderCheckin();playCheckinSound();toast("ZYQORIX +"+reward+" ZQR Daily!");
+});
+renderCheckin();
 
-  $("copyReferralButton").addEventListener("click", async () => {
-    const value = $("referralLink").value;
-    try {
-      await navigator.clipboard.writeText(value);
-      toast("Referral link copied.");
-    } catch (_) {
-      $("referralLink").select();
-      toast("Select and copy the text.");
-    }
-  });
-
-  $("referralLink").value = buildReferralLink();
-
-  // TON Connect initialization. Set TONCONNECT_MANIFEST to your real hosted
-  // manifest URL before using wallet connection.
-  try {
-    if (window.TON_CONNECT_UI?.TonConnectUI &&
-        !TONCONNECT_MANIFEST.includes("YOUR-GITHUB-USERNAME")) {
-      walletUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: TONCONNECT_MANIFEST,
-        buttonRootId: "ton-connect"
-      });
-      walletUI.onStatusChange(wallet => {
-        walletAddress = wallet?.account?.address || "";
-        render();
-      });
-    } else {
-      $("ton-connect").innerHTML =
-        '<button class="btn secondary" id="connectPlaceholder">Wallet connection setup pending</button>';
-      $("connectPlaceholder").addEventListener("click", () =>
-        toast("First publish the TON Connect manifest and update its URL in index.html.")
-      );
-    }
-  } catch (error) {
-    console.error("TON Connect initialization failed", error);
-    $("ton-connect").textContent = "Wallet connection setup pending.";
-  }
-
+function render(){
+ $("balance").textContent=demoBalance.toFixed(4);
+ $("profileBalance").textContent=demoBalance.toFixed(4);
+ $("lifetimeValue").textContent=lifetimeEarned.toFixed(4)+" ZQR";
+ $("tapCount").textContent=taps+" taps this session";
+ $("levelValue").textContent=level+" / 1000";
+ $("levelBadge").textContent="LEVEL "+level;
+ $("minerLevelHeading").textContent="LEVEL "+level;
+ $("miningProgress").style.width=Math.min(100,(taps%10)*10 + (minedToday%1)*100)+"%";
+ $("levelProgress").style.width=Math.min(100,lifetimeEarned%100)+"%";
+ $("levelProgressText").textContent="Lifetime: "+lifetimeEarned.toFixed(4);
+ $("profileWalletStatus").textContent=walletAddress?"Connected":"Not connected";
+ $("walletAddress").textContent=walletAddress||"No wallet connected";
+ $("onChainVal").textContent=onChainBalance.toLocaleString();
+ const rate=getMiningRate();
+ $("rateDisplay").textContent=rate.daily.toFixed(2)+" ZQR/day";
+ $("autoRate").textContent=rate.perSec.toFixed(8)+" /sec";
+ $("minedToday").textContent="+"+minedToday.toFixed(4)+" today (auto)";
+}
+function createFloatText(text,x,y){
+  const el=document.createElement('div');
+  el.className='float';
+  el.textContent=text;
+  el.style.left=x+'px';
+  el.style.top=y+'px';
+  document.getElementById('coinWrap').appendChild(el);
+  setTimeout(()=>el.remove(),800);
+}
+$("mineCoin").addEventListener("click",(e)=>{
+  playTapSound(); playCoinSound();
+  taps+=1;
+  demoBalance+=0.01;
+  lifetimeEarned+=0.01;
+  minedToday+=0.01;
+  saveDemo();
+  const coin=$("mineCoin");
+  coin.classList.remove("pulse"); void coin.offsetWidth; coin.classList.add("pulse");
+  const rect=coin.getBoundingClientRect();
+  const wrapRect=document.getElementById('coinWrap').getBoundingClientRect();
+  createFloatText('+0.01', e.clientX ? e.clientX - wrapRect.left : 60, e.clientY ? e.clientY - wrapRect.top : 40);
   render();
+});
+(function handleOffline(){
+  const now=Date.now();
+  const diffSec = (now - lastMinedTime)/1000;
+  if(diffSec > 2 && diffSec < 43200){
+    const rate=getMiningRate();
+    const offlineEarn = Math.min(rate.perSec * diffSec, rate.daily * 0.5);
+    if(offlineEarn > 0.0001){
+      demoBalance+=offlineEarn;
+      lifetimeEarned+=offlineEarn;
+      minedToday+=offlineEarn;
+      toast("ZYQORIX auto mined +"+offlineEarn.toFixed(4)+" ZQR while away");
+    }
+  }
+  lastMinedTime=now;
+  saveDemo();
+})();
+document.querySelectorAll(".nav button").forEach(button=>{
+ button.addEventListener("click",()=>{
+  playTapSound();
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));button.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));$(button.dataset.page).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});
+ });
+});
+function updateOnchainUI(){
+ let last10=Number(localStorage.getItem("zqr_onchain_10k_last")||0);let can10=Date.now()-last10>=24*3600000;
+ $("status-10k").textContent=onChainBalance>=10000?(can10?"✅ Ready +5/24hr":"⏳ Wait 24hrs"):"Need 10k • You: "+onChainBalance; $("btn-10k").disabled=!can10||onChainBalance<10000;
+ let last25=Number(localStorage.getItem("zqr_onchain_25k_last")||0);let can25=Date.now()-last25>=48*3600000;
+ $("status-25k").textContent=onChainBalance>=25000?(can25?"✅ Ready +15/48hr":"⏳ Wait 48hrs"):"Need 25k • You: "+onChainBalance; $("btn-25k").disabled=!can25||onChainBalance<25000;
+ let last50=Number(localStorage.getItem("zqr_onchain_50k_last")||0);let can50=Date.now()-last50>=72*3600000;
+ $("status-50k").textContent=onChainBalance>=50000?(can50?"✅ Ready +20/72hr":"⏳ Wait 72hrs"):"Need 50k • You: "+onChainBalance; $("btn-50k").disabled=!can50||onChainBalance<50000;
+}
+window.claimOnchain=function(min,reward,hours,id){
+ let key="zqr_onchain_"+id+"_last";let last=Number(localStorage.getItem(key)||0);if(Date.now()-last<hours*3600000){playErrorSound(); return toast("Wait "+hours+"hrs");}
+ if(onChainBalance<min){playErrorSound(); return toast("Need "+min+" ZQR");}
+ localStorage.setItem(key,String(Date.now()));demoBalance+=reward;lifetimeEarned+=reward;saveDemo();render();updateOnchainUI();playClaimSound();toast("ZYQORIX +"+reward+" ZQR");
+}
+updateOnchainUI();
+window.doJoinMain=function(){
+ if(localStorage.getItem("zqr_joined_main")){toast("Already joined");return;}
+ playClaimSound();
+ window.open("https://t.me/ZYQORIX","_blank");localStorage.setItem("zqr_joined_main","1");
+ let el=document.getElementById("social-join-main");if(el)el.style.display="none";demoBalance+=10;lifetimeEarned+=10;saveDemo();render();toast("ZYQORIX +10 ZQR • Task removed");
+}
+if(localStorage.getItem("zqr_joined_main")){let el=document.getElementById("social-join-main");if(el)el.style.display="none";}
+window.doReact=function(){
+ let key="zqr_react_last";let last=Number(localStorage.getItem(key)||0);if(Date.now()-last<6*3600000){playErrorSound(); return toast("Come back 6hrs");}
+ window.open("https://t.me/ZYQORIX","_blank");localStorage.setItem(key,String(Date.now()));demoBalance+=5;lifetimeEarned+=5;saveDemo();render();updateSocialUI();playClaimSound();toast("+5 ZQR React");
+}
+window.doPayoutJoin=function(){
+ let key="zqr_payout_join_last";let last=Number(localStorage.getItem(key)||0);if(Date.now()-last<72*3600000){playErrorSound(); return toast("Wait 72hrs");}
+ window.open("https://t.me/ZYQORIX_PAYOUT","_blank");localStorage.setItem(key,String(Date.now()));demoBalance+=5;lifetimeEarned+=5;saveDemo();render();updateSocialUI();playClaimSound();toast("+5 ZQR Payout");
+}
+window.doWithdrawCheck=function(){
+ let key="zqr_withdraw_check_last";let last=Number(localStorage.getItem(key)||0);if(Date.now()-last<24*3600000){playErrorSound(); return toast("Wait 24hrs");}
+ window.open("https://t.me/ZYQORIX_PAYOUT","_blank");localStorage.setItem(key,String(Date.now()));demoBalance+=3;lifetimeEarned+=3;saveDemo();render();updateSocialUI();playClaimSound();toast("+3 ZQR Check");
+}
+function updateSocialUI(){
+ let lastR=Number(localStorage.getItem("zqr_react_last")||0);let canR=Date.now()-lastR>=6*3600000;
+ $("status-react").textContent=canR?"✅ Ready 5/6hr":"⏳ Wait 6hrs"; $("btn-react").disabled=!canR;
+ let lastPJ=Number(localStorage.getItem("zqr_payout_join_last")||0);let canPJ=Date.now()-lastPJ>=72*3600000;
+ $("status-payout-join").textContent=canPJ?"✅ Ready 5/72hr":"⏳ Wait 72hrs"; $("btn-payout-join").disabled=!canPJ;
+ let lastWC=Number(localStorage.getItem("zqr_withdraw_check_last")||0);let canWC=Date.now()-lastWC>=24*3600000;
+ $("status-withdraw-check").textContent=canWC?"✅ Ready 3/24hr":"⏳ Wait 24hrs"; $("btn-withdraw-check").disabled=!canWC;
+ let j=localStorage.getItem("zqr_joined_main");if(j){$("status-join").textContent="Joined • Removed";$("btn-join").disabled=true;}else{$("status-join").textContent="Not joined";$("btn-join").disabled=false;}
+}
+updateSocialUI();
+document.querySelectorAll("#taskTabs button").forEach(tab=>{
+ tab.addEventListener("click",()=>{
+  playTapSound();
+  document.querySelectorAll("#taskTabs button").forEach(b=>b.classList.remove("active"));tab.classList.add("active");
+  let f=tab.dataset.filter;
+  document.querySelectorAll("#taskList .item").forEach(it=>{
+   if(f==="all")it.style.display="flex";
+   else if(it.dataset.category===f)it.style.display="flex";
+   else it.style.display="none";
+  });
+ });
+});
+window.claimReferral=function(name){playClaimSound(); toast("+100 ZQR for "+name);demoBalance+=100;lifetimeEarned+=100;saveDemo();render();}
+function buildReferralLink(){const botUsername=window.ZYQORIX_BOT_USERNAME||"ZyqorixBot";return telegramId?"https://t.me/"+botUsername+"?start="+encodeURIComponent(telegramId):"Open in Telegram";}
+$("referralLink").value=buildReferralLink();
+$("copyReferralButton").addEventListener("click",async()=>{playTapSound(); try{await navigator.clipboard.writeText($("referralLink").value);toast("Link copied!");}catch(_){$("referralLink").select();toast("Copy manually");}});
+$("verifyButton").addEventListener("click",()=>{playTapSound(); if(!walletAddress)return toast("Connect wallet first");toast("Verification demo");});
+document.getElementById('soundBtn').addEventListener('click',()=>{
+ soundEnabled=!soundEnabled;
+ localStorage.setItem('zqr_sound',soundEnabled?'on':'off');
+ document.getElementById('soundBtn').textContent=soundEnabled?'🔊':'🔇';
+ toast(soundEnabled?'Sound ON 🔊':'Sound OFF 🔇');
+ if(soundEnabled) playClaimSound();
+});
+document.getElementById('soundBtn').textContent=soundEnabled?'🔊':'🔇';
+setInterval(()=>{renderCheckin();updateOnchainUI();updateSocialUI();},60000);
+render();
 })();
 </script>
 </body>
