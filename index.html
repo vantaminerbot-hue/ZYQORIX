@@ -2,199 +2,211 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ZYQORIX — Full Auto Mining</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZYQORIX - Mine ZQR</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
-:root{--cyan:#54e7ff;--muted:#8293ad;--border:rgba(100,160,255,.17);--green:#3dff8a}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#102746 0%,#07101f 48%,#040812 100%);color:#f3f7ff;font-family:system-ui,sans-serif;min-height:100vh;padding-bottom:90px}
-.app{max-width:520px;margin:auto;padding:17px 15px 30px}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.brand{font-size:22px;font-weight:950;letter-spacing:2px}.brand span{color:var(--cyan)}
-.badge{font-size:10px;border:1px solid var(--border);padding:6px 9px;border-radius:20px;color:var(--cyan)}
-.card{background:linear-gradient(145deg,rgba(19,37,64,.96),rgba(9,17,32,.97));border:1px solid var(--border);border-radius:20px;padding:17px;margin-bottom:14px}
-.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
-.big{font-size:32px;font-weight:900}.muted{color:var(--muted);font-size:12px}
-.btn{border:0;border-radius:13px;padding:13px 14px;font-weight:800;background:linear-gradient(100deg,#2375ff,#48cfff);color:#03101e;width:100%;font-size:13px;cursor:pointer}
-.btn2{background:rgba(20,40,70,.8);border:1px solid var(--border);color:#9bdcff}
-.btn:disabled{opacity:.5}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}.stat{background:rgba(3,11,24,.5);border:1px solid var(--border);border-radius:15px;padding:13px}.stat strong{display:block;font-size:18px;margin-top:5px}
-.coin-wrap{display:flex;justify-content:center;padding:17px 0 20px}
-.coin{height:165px;width:165px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 25%,#c7f5ff,#348aff 43%,#10336b 72%,#07162e);border:5px solid #8deaff;font-size:68px;font-weight:1000;color:white;animation:miningGlow 1.5s infinite ease-in-out}
-@keyframes miningGlow{0%,100%{box-shadow:0 0 20px rgba(55,167,255,.4)}50%{box-shadow:0 0 45px rgba(55,167,255,.9),0 0 70px rgba(84,231,255,.4)}}
-.progress{height:7px;background:#172640;border-radius:20px;overflow:hidden;margin:10px 0}.progress div{height:100%;width:0;background:linear-gradient(90deg,#287cff,#65f0ff);transition:width .3s}
-.mining-indicator{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--green);background:rgba(61,255,138,.12);border:1px solid rgba(61,255,138,.25);padding:4px 10px;border-radius:20px}
-.dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 1s infinite}@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#142b48;border:1px solid #3473a9;padding:12px 16px;border-radius:13px;z-index:100;display:none;max-width:90%;font-size:12px}
-.tabs{display:flex;gap:8px;margin:15px 0;overflow-x:auto}
-.tab{padding:8px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;white-space:nowrap;background:rgba(10,20,40,.6)}
-.tab.active{background:linear-gradient(100deg,#2375ff,#48cfff);color:#03101e;font-weight:800}
-.task{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:13px;margin-bottom:8px;background:rgba(3,11,24,.4)}
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,16,31,.95);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:10px 0;backdrop-filter:blur(10px)}
-.nav div{font-size:11px;text-align:center;color:var(--muted)}.nav div.active{color:var(--cyan)}
+body{background:radial-gradient(ellipse at 50% 0%,#4c1d95 0%,#0f0a2e 35%,#020617 70%,#000000 100%);color:white;padding-bottom:100px;font-family:'Segoe UI',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(34,211,238,.25) 0%,transparent 40%),radial-gradient(circle at 80% 80%,rgba(168,85,247,.3) 0%,transparent 40%);pointer-events:none;z-index:0}
+.glass{background:rgba(255,255,255,.08);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:16px;position:relative;z-index:1}
+.gold-gradient{background:linear-gradient(90deg,#22d3ee,#a855f7,#22d3ee);color:white;font-weight:900;box-shadow:0 5px 25px rgba(168,85,247,.5)}
+.blue-btn{background:linear-gradient(90deg,#7c3aed,#06b6d4);color:white;font-weight:bold}
+.green-glow{color:#00FF88;text-shadow:0 0 15px #00FF88}
+.coin{width:180px;height:180px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(34,211,238,.7),0 0 80px rgba(168,85,247,.5);border:4px solid #22d3ee;animation:roll 3s linear infinite;background:#020617}
+.coin img{width:100%;height:100%;object-fit:cover}
+@keyframes roll{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
+.nav-active{color:#22d3ee!important}
+#ton-connect button{width:100%!important}
+button:disabled{opacity:.65;cursor:not-allowed}
+.vault-card{background:linear-gradient(135deg,#7c3aed 0%,#06b6d4 50%,#10b981 100%);border-radius:24px;padding:20px;position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(124,58,237,.4)}
+#securityOverlay{position:fixed;inset:0;z-index:9999999;background:#020617 radial-gradient(ellipse at 50% 0%,#4c1d95 0%,#020617 80%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+#walletGate{position:fixed;inset:0;z-index:9999998;background:rgba(2,6,23,.95);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+#cfBox{margin-top:22px;background:#fff;border-radius:12px;padding:14px 18px;min-width:310px}
+.timeline-wrap{position:relative;padding-left:38px}
+.timeline-line{position:absolute;left:15px;top:10px;bottom:10px;width:3px;background:linear-gradient(to bottom,#22d3ee,#a855f7,#00FF88);border-radius:10px}
+.timeline-item{position:relative;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.timeline-dot{position:absolute;left:-30px;width:16px;height:16px;border-radius:50%;border:3px solid #0f0a2e}
+.timeline-dot.owned{background:#00FF88;box-shadow:0 0 10px #00FF88}
+.timeline-dot.active{background:#22d3ee;box-shadow:0 0 15px #22d3ee;animation:pulse 1.5s infinite}
+.timeline-dot.locked{background:#ffffff30}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.timeline-card{flex:1;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:14px}
+.timeline-card.owned{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25)}
+.timeline-card.active{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
+.timeline-card.locked{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
 </style>
 </head>
 <body>
-<div id="toast" class="toast"></div>
-<div class="app">
-<header class="topbar"><div><div class="brand">ZYQO<span>RIX</span></div><div class="muted">AUTO MINING NETWORK</div></div><div class="badge">● BSC NETWORK</div></header>
+<div id="securityOverlay"><div style="width:200px;height:200px;border-radius:50%;overflow:hidden;border:4px solid #22d3ee;box-shadow:0 0 40px rgba(34,211,238,.6)"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png" style="width:100%;height:100%;object-fit:cover"></div><h1 style="margin-top:18px;font-size:54px;font-weight:900;background:linear-gradient(90deg,#22d3ee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">ZYQORIX</h1><div id="cfBox"><div class="cf-turnstile" data-sitekey="0x4AAAAAAFkZVgEgD-8pFMz1" data-callback="onZyqorixVerified"></div></div><p style="color:#22d3ee;margin-top:18px;font-size:13px;font-weight:700">Complete the security check to enter ZYQORIX.</p></div>
+<div id="walletGate"><div style="font-size:60px">🔐</div><h2 class="text-2xl font-black mt-3">CONNECT WALLET FIRST</h2><p class="text-sm text-white/60 mt-2">You must connect your TON wallet before you can mine, claim or withdraw.</p><div class="glass p-4 mt-5 w-full max-w-[320px]"><div id="ton-connect-gate"></div></div><p class="text-xs text-cyan-300 mt-3">ZYQORIX • Secure • Fast • Real Rewards</p></div>
 
-<!-- HOME -->
-<div id="homePage">
-<div class="card" style="text-align:center">
-<div style="margin-bottom:8px"><span class="mining-indicator"><span class="dot"></span> AUTO MINING • <span id="rateDisplay">5.00 ZQR/day</span></span></div>
-<div class="label">Your Balance</div>
-<div class="big"><span id="balance">0.00</span> ZQR</div>
-<div class="muted">Auto mines itself — No tap needed</div>
-<div class="coin-wrap"><div class="coin">Z</div></div>
-<div class="label">💤 Mining even when app is closed</div>
-<div class="progress"><div id="miningProgress"></div></div>
-<div style="display:flex;justify-content:space-between" class="muted"><span id="minedToday">+0.00 today</span><span id="autoRate">0.000057 /sec</span></div>
-</div>
-<div class="grid2">
-<div class="stat"><div class="label">Level</div><strong id="levelValue">1</strong></div>
-<div class="stat"><div class="label">Lifetime</div><strong id="lifetimeValue">0 ZQR</strong></div>
-</div>
-</div>
+<div id="mine-page" class="p-4 max-w-md mx-auto relative z-10">
+<div class="flex justify-between items-center mb-3"><div><p id="userName" class="font-bold text-lg">Miner</p><div class="flex gap-2 mt-1"><span class="bg-white text-black text-xs px-3 py-1 rounded-full font-bold">Lvl <span id="lvl">1</span></span><span id="joinStatusBadge" class="bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500">● NOT JOINED</span></div><button onclick="toggleSound()" id="soundBtn" class="text-[10px] mt-2 bg-white/10 px-2 py-1 rounded">🔊 Sound ON</button></div><div class="glass px-3 py-2 text-xs min-w-[145px] text-center"><p id="walletShort" class="text-[11px]">Connect Wallet</p><div id="ton-connect" class="mt-2"></div><button onclick="disconnectWallet()" class="w-full mt-2 bg-red-500/20 border border-red-500/40 text-red-300 py-1.5 rounded-lg text-[11px] font-bold">Disconnect Wallet</button></div></div>
+<div id="verificationCard" class="glass p-4 mt-4 border border-cyan-500/40"><div class="flex items-center justify-between"><div><p class="text-sm font-bold">🔐 Verification</p><p id="verificationStatus" class="text-xs text-cyan-300 mt-1">Not verified</p></div><div id="verificationIcon" class="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-xl">🔐</div></div><p class="text-xs text-white/60 mt-3">Verify with <b class="text-cyan-300">0.1 TON</b> to unlock withdrawals.</p><button id="verifyBtn" onclick="verifyAccount()" class="w-full gold-gradient py-3 rounded-xl mt-4 text-sm">VERIFY WITH 0.1 TON</button></div>
+<div class="text-center mt-5"><p class="text-xs tracking-[0.3em] text-white/50">MINING (Auto Only)</p><h1 class="text-3xl font-bold mt-1"><span id="miningBalance">0.0000</span> <span class="text-cyan-300 text-xl">ZQR</span></h1><p class="text-[11px] text-white/40 mt-1">Auto-mining active • No tapping needed</p><div class="glass mt-3 py-2 px-4 inline-block text-xs">APP POOL BALANCE: <b id="pool" class="text-[#00FF88]">0.0000</b> ZQR <span id="poolUsd" class="text-[#00FF88] text-[10px] font-bold"></span></div><p class="text-[11px] mt-2 font-bold">ZYQORIX Price: <span id="livePrice" class="text-[#00FF88]">$0.00000000 USDT • LIVE • STON.fi</span></p><p class="text-xs mt-1"><a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-cyan-300 underline text-[11px]">View Pool on STON.fi →</a> • <span class="text-white/40 text-[11px]">Liquidity Live</span></p><p class="text-xs mt-1 text-white/60">Mined Today: <span id="minedTodayShow" class="text-cyan-300 font-bold">0.00</span> / <span id="dailyCapShow" class="font-bold">3.00</span> ZQR</p><div class="w-full bg-white/10 rounded-full h-2 mt-2 overflow-hidden"><div id="dailyProgressBar" class="bg-cyan-400 h-2 rounded-full" style="width:0%"></div></div><p class="text-2xl font-bold green-glow mt-3" id="miningPlus">+0.0000 /sec</p><div class="flex justify-center mt-6"><div class="coin"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png"></div></div><button id="claimBtn" onclick="claimMining()" class="w-full blue-btn py-4 rounded-xl mt-8 text-lg">CLAIM TO POOL</button><p class="text-xs text-white/40 mt-3">Power: <span id="power">3.02</span> TH/s | <span id="rateShow">0.00000</span>/sec | <span id="dayRate">3.00/day</span></p></div></div>
 
-<!-- TASKS -->
-<div id="tasksPage" style="display:none">
-<div class="card">
-<h3>Tasks — Earn More ZQR</h3>
-<div class="task"><div><b>Join Telegram</b><div class="muted">+500 ZQR</div></div><button class="tab" onclick="doTask(this,500)">Do</button></div>
-<div class="task"><div><b>Follow X (Twitter)</b><div class="muted">+300 ZQR</div></div><button class="tab" onclick="doTask(this,300)">Do</button></div>
-<div class="task"><div><b>Invite 3 Friends</b><div class="muted">+1000 ZQR</div></div><button class="tab" onclick="doTask(this,1000)">Do</button></div>
-</div>
-</div>
+<div id="tasks-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-2xl font-bold text-center">Earn Rewards</h1>
+<div class="glass p-4 mt-4 border border-cyan-400/40 bg-cyan-500/10"><div class="flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">📅</div><div><p class="text-sm font-bold">Daily Check-In</p><p class="text-xs text-white/50">Come back every day!</p><p class="text-[11px] text-cyan-300 mt-1 font-bold" id="dailyCheckStreak">Day 1 • +1 ZQR</p></div></div><button id="dailyCheckBtn" onclick="claimDailyCheck()" class="bg-cyan-400 text-black px-4 py-2 rounded-full text-xs font-bold">Claim</button></div><div id="dailyCheckDays" class="flex justify-between mt-4 gap-1"></div><p id="dailyCheckTimer" class="text-[10px] text-white/40 mt-2 text-center">Ready!</p></div>
+<div class="mt-4 space-y-3">
+<div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💬</div><div><p class="text-sm font-bold">Join ZYQORIX Channel *</p><p class="text-xs text-white/50">+50 ZQR • Once • Required</p></div></div><button id="taskBtn1" onclick="doTask(50,'join_channel','https://t.me/ZYQORIX')" class="bg-white text-black px-4 py-2 rounded-full text-xs font-bold">Join +50</button></div>
+<div class="glass p-4 flex justify-between items-center border border-pink-400/40 bg-pink-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center">❤️</div><div><p class="text-sm font-bold">React to Latest Post</p><p class="text-xs text-white/50">+5 ZQR • Every 6hrs</p><p class="text-[10px] text-pink-300 mt-1" id="reactTimer">Ready!</p></div></div><button id="reactBtn" onclick="doReactTask()" class="bg-pink-400 text-black px-4 py-2 rounded-full text-xs font-bold">React</button></div>
+<div class="glass p-4 flex justify-between items-center border border-purple-400/40 bg-purple-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Add Link to Your Bio</p><p class="text-xs text-white/50">+5 ZQR • Every 24hrs</p><p class="text-[10px] text-purple-300 mt-1">Add https://t.me/ZYQORIX_BOT to bio</p><p class="text-[10px] text-purple-300" id="bioTimer">Ready!</p></div></div><button id="bioBtn" onclick="doBioTask()" class="bg-purple-400 text-black px-4 py-2 rounded-full text-xs font-bold">Add Bio</button></div>
+</div></div>
 
-<!-- REFERRAL -->
-<div id="refPage" style="display:none">
-<div class="card">
-<h3>Referral</h3>
-<div class="muted" style="margin:8px 0">Invite friends, earn 10% of their mining. Level up faster.</div>
-<div style="background:#0c1a30;border:1px dashed var(--border);padding:10px;border-radius:10px;word-break:break-all" id="refLink">https://t.me/zyqorix_bot?start=YOUR_ID</div>
-<button class="btn" style="margin-top:10px" onclick="navigator.clipboard.writeText(document.getElementById('refLink').textContent);toast('Referral link copied')">Copy Link</button>
-<div class="grid2" style="margin-top:12px"><div class="stat"><div class="label">Friends</div><strong id="refCount">0</strong></div><div class="stat"><div class="label">Earned from refs</div><strong id="refEarned">0 ZQR</strong></div></div>
-</div>
-</div>
+<div id="miners-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h2 class="text-center text-white/50 text-xs tracking-widest mb-3">MINERS LVL 1 - 1000 • STAIRCASE</h2><div class="glass p-3 mb-4 flex justify-between text-xs"><p>Your Level: <b id="myLevelShow" class="text-cyan-300">1</b> / 1000</p><p>Speed: <b id="mySpeedShow" class="text-green-400">3.00 /day</b></p></div><div class="timeline-wrap"><div class="timeline-line"></div><div id="minersGrid"></div></div><button onclick="loadMoreMiners()" class="w-full glass py-3 rounded-xl mt-4 text-xs">Load More ▼</button></div>
 
-<!-- PROFILE / WALLET -->
-<div id="profilePage" style="display:none">
-<div class="card">
-<h3>Profile & Wallet</h3>
-<div class="muted" style="margin-bottom:10px">Connect first, then verify for withdrawal. $0.30 fee is for project liquidity — e go help token get value for launch, not be profit.</div>
-<div id="walletAddr" class="muted" style="word-break:break-all;margin-bottom:12px;background:#0c1a30;padding:10px;border-radius:10px;border:1px solid var(--border)">No wallet connected</div>
-<button class="btn" id="connectButton">1. Connect Wallet (Trust / Binance)</button>
-<button class="btn btn2" id="verifyButton" style="margin-top:10px" disabled>2. Verify — $0.30 (for liquidity)</button>
-<div id="verifyStatus" class="muted" style="text-align:center;margin-top:10px;font-size:11px"></div>
-<div style="margin-top:15px;border-top:1px solid var(--border);padding-top:12px">
-<div class="label">Why $0.30?</div>
-<div class="muted" style="font-size:11px;margin-top:4px">This small fee goes to <b style="color:#fff">Owner Wallet for Liquidity</b>. It helps us add liquidity on PancakeSwap when ZQR launches, prevents bots, and allows withdrawals. Not team profit — na for project growth.</div>
-</div>
-</div>
-<div class="card">
-<h3>Withdraw</h3>
-<div class="muted" style="font-size:11px">Minimum: 100 ZQR. Only after verification.</div>
-<button class="btn btn2" style="margin-top:10px" onclick="toast('Withdraw will open after launch — keep mining!')">Request Withdraw</button>
-</div>
-</div>
+<div id="friends-page" class="hidden p-4 max-w-md mx-auto relative z-10"><div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Your Invite Link</p><p id="refLink" class="text-[10px] text-white/50 break-all w-48"></p></div></div><button onclick="copyRef()" class="blue-btn px-4 py-2 rounded-full text-xs">Copy</button></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">👥</div><div><p class="text-sm font-bold">Your Referrals</p><p class="text-xs text-white/50"><span id="refCount">0</span> total</p></div></div></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🎁</div><div><p class="text-sm font-bold">Referral Reward</p><p id="refRewardText" class="text-xs text-white/50">0 available</p><p id="refEarned" class="text-[10px] text-white/30 mt-1">0 ZQR</p></div></div><button onclick="claimReferral()" id="claimReferralBtn" class="bg-white/20 px-4 py-2 rounded-full text-xs">Claim</button></div><div class="glass p-4 flex justify-between items-center mt-3 border border-blue-400/40 bg-blue-600/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💼</div><div><p class="text-sm font-bold">Team Wallet (5%)</p><p id="teamWalletText" class="text-xs text-blue-200">0.00 ZQR available</p></div></div><button onclick="claimTeamWallet()" id="claimTeamBtn" class="blue-btn px-4 py-2 rounded-full text-xs">Claim to Pool</button></div><div id="refList" class="mt-6 space-y-2"></div></div>
 
-</div>
+<div id="profile-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-xl font-bold text-center">Profile</h1><div class="vault-card mt-4"><p class="text-[10px] tracking-widest opacity-80">COMBINED HOLDING • DECIDES YOUR LEVEL</p><div class="flex items-center gap-2 mt-2"><div class="w-8 h-8 rounded-full overflow-hidden bg-black/30"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png" class="w-full h-full object-cover"></div><h1 class="text-3xl font-black tracking-tight"><span id="combinedBalance">0.00</span></h1></div><div class="flex items-center gap-2 mt-1"><span class="bg-black/30 px-3 py-1 rounded-full text-xs font-bold">≈ $<span id="combinedUsd">0.00</span></span></div><p class="text-xs mt-2 opacity-90">Level <span id="combinedLevel">1</span> (MAX 1000)</p><div class="glass p-3 mt-3 flex justify-between"><div><p class="text-[10px] opacity-70">In-app Pool</p><p class="text-lg font-bold"><span id="balProfile">0</span></p></div><div><p class="text-[10px] opacity-70">On-chain Real</p><p class="text-lg font-bold"><span id="balProfileOnchain">0.00</span></p></div></div></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-12 h-12 bg-cyan-400 rounded-2xl flex items-center justify-center text-xl">💼</div><div><p class="font-bold text-sm">Connected Wallet</p><p id="walletDisplayProfile" class="text-xs text-white/50">Not connected</p></div></div><button onclick="disconnectWallet()" class="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-2 rounded-full text-xs font-bold">Disconnect</button></div><div class="glass p-4 mt-3 flex justify-between"><div><p class="text-sm font-bold">Mining (Unclaimed)</p></div><p class="text-blue-300 font-bold"><span id="miningProfile">0</span> ZQR</p></div><div class="glass p-4 mt-3"><p class="text-sm font-bold">Withdraw History</p><div id="withdrawHistory" class="mt-2"><p class="text-white/30 text-xs text-center">Loading...</p></div></div><div class="glass p-4 mt-4"><p class="text-sm font-bold">Withdraw</p><p class="text-xs text-white/60 mt-1">Minimum: <b class="text-cyan-300">2000 ZQR</b> • Maximum: <b class="text-cyan-300">2000 ZQR</b> • Fee: <b>70 ZQR</b></p><p class="text-[11px] text-yellow-300 mt-1">You must withdraw exactly 2000 ZQR • 1 per 24hrs</p><p class="text-xs text-yellow-300 mt-1 font-bold" id="withdrawCooldownText">✅ Withdrawal Available</p><p class="text-xs text-blue-300 mt-1">You will receive: <b id="receiveAmt">0.00</b> ZQR</p><input id="withdrawAmt" oninput="calcReceive()" type="number" min="2000" max="2000" placeholder="Enter 2000" class="w-full mt-2 p-3 rounded-xl bg-black/40 border border-white/10 text-white"><button onclick="withdraw()" id="withdrawBtn" class="w-full bg-white text-black mt-3 py-3 rounded-xl font-bold">Request Withdrawal</button><p class="text-[10px] text-white/40 mt-2 text-center">Strict: 1 per 24hrs. Exactly 2000 ZQR. Fee 70 ZQR. Verify 0.1 TON first.</p></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">👤</div><div><p class="text-sm font-bold">User ID</p><p id="userIdShow" class="text-xs text-white/50"></p></div></div></div><div class="glass p-4 mt-3 text-[11px]"><p class="font-bold mb-1">Token Info</p><p class="text-white/50 break-all">Contract: EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_</p><a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-cyan-300 underline">Trade on STON.fi</a></div></div>
 
-<div class="nav">
-<div id="navHome" class="active" onclick="showPage('home')">🏠<br>Home</div>
-<div id="navTasks" onclick="showPage('tasks')">📋<br>Tasks</div>
-<div id="navRef" onclick="showPage('ref')">👥<br>Referral</div>
-<div id="navProfile" onclick="showPage('profile')">👤<br>Wallet</div>
-</div>
+<div class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 flex justify-around p-2 max-w-md mx-auto z-50"><button onclick="showPage('mine')" id="nav-mine" class="nav-active flex flex-col items-center"><span class="text-xl">⛏️</span><span class="text-[10px]">Mine</span></button><button onclick="showPage('tasks')" id="nav-tasks" class="flex flex-col items-center opacity-60"><span class="text-xl">📝</span><span class="text-[10px]">Tasks</span></button><button onclick="showPage('miners')" id="nav-miners" class="flex flex-col items-center opacity-60"><span class="text-xl">⚡</span><span class="text-[10px]">Miners</span></button><button onclick="showPage('friends')" id="nav-friends" class="flex flex-col items-center opacity-60"><span class="text-xl">👥</span><span class="text-[10px]">Friends</span></button><button onclick="showPage('profile')" id="nav-profile" class="flex flex-col items-center opacity-60"><span class="text-xl">👤</span><span class="text-[10px]">Profile</span></button></div>
 
 <script>
 "use strict";
-const $=id=>document.getElementById(id);
-const OWNER_WALLET="0xc19Bc37eb1e3757F99ac3b70f30e7A10a74e122b";
-const VERIFY_BNB="0.0005";
-const BSC_CHAIN_ID="0x38";
-const BSC_PARAMS={chainId:BSC_CHAIN_ID, chainName:"BNB Smart Chain", nativeCurrency:{name:"BNB", symbol:"BNB", decimals:18}, rpcUrls:["https://bsc-dataseed.binance.org/"], blockExplorerUrls:["https://bscscan.com/"]};
-const STORAGE_PREFIX="zyqorix_auto_";
-let demoBalance=Number(localStorage.getItem(STORAGE_PREFIX+"balance")||0);
-let lifetimeEarned=Number(localStorage.getItem(STORAGE_PREFIX+"lifetime")||0);
-let level=Number(localStorage.getItem(STORAGE_PREFIX+"level")||1);
-let minedToday=Number(localStorage.getItem("zqr_mined_today")||0);
-let lastMinedTime=Number(localStorage.getItem("zqr_last_mined_time")||Date.now());
-let userWallet="";
-
-function save(){localStorage.setItem(STORAGE_PREFIX+"balance",String(demoBalance));localStorage.setItem(STORAGE_PREFIX+"lifetime",String(lifetimeEarned));localStorage.setItem("zqr_mined_today",String(minedToday));localStorage.setItem("zqr_last_mined_time",String(Date.now()));}
-function toast(m){const el=$("toast");el.textContent=m;el.style.display="block";setTimeout(()=>el.style.display="none",3500);}
-function getRate(){ const daily=5+(level-1); return {daily, perSec:daily/86400}; }
-function autoMine(){ const now=Date.now(); const elapsed=(now-lastMinedTime)/1000; if(elapsed<1) return; const rate=getRate(); const earned=rate.perSec*elapsed; if(earned>0){demoBalance+=earned; lifetimeEarned+=earned; minedToday+=earned; lastMinedTime=now; save(); render();}}
-setInterval(autoMine,1000);
-(function(){const now=Date.now(); const diff=(now-lastMinedTime)/1000; if(diff>2 && diff<86400){const r=getRate(); const earn=Math.min(r.perSec*diff, r.daily*0.5); if(earn>0.0001){demoBalance+=earn; lifetimeEarned+=earn; minedToday+=earn;}} lastMinedTime=now; save();})();
-function render(){ $("balance").textContent=demoBalance.toFixed(4); $("lifetimeValue").textContent=lifetimeEarned.toFixed(4)+" ZQR"; $("levelValue").textContent=level; const rate=getRate(); $("rateDisplay").textContent=rate.daily.toFixed(2)+" ZQR/day"; $("autoRate").textContent=rate.perSec.toFixed(8)+" /sec"; $("minedToday").textContent="+"+minedToday.toFixed(4)+" today"; $("miningProgress").style.width=Math.min(100,(minedToday%1)*100+5)+"%";}
-render(); setInterval(render,1000);
-function doTask(btn, amt){ demoBalance+=amt; lifetimeEarned+=amt; save(); render(); btn.textContent="Done ✅"; btn.disabled=true; toast("+"+amt+" ZQR added"); }
-function showPage(p){
-  ["home","tasks","ref","profile"].forEach(x=>{
-    $(""+x+"Page").style.display = x===p?"block":"none";
-    $("nav"+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle("active", x===p);
-  });
+function onZyqorixVerified(t){localStorage.setItem('zyqorix_cf_passed','1');document.getElementById('securityOverlay').style.display='none';checkWalletGate();}
+if(localStorage.getItem('zyqorix_cf_passed')==='1'){document.getElementById('securityOverlay').style.display='none';}
+const SUPABASE_URL="https://ydrplmyfchfimkwcqyqw.supabase.co";
+const SUPABASE_KEY="sb_publishable_zQIHYhN3xg-7p8EtXxXRrQ_NZeGwL3f";
+const ZYQORIX_TOKEN_ADDRESS="EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_";
+const ZYQORIX_POOL_ADDRESS="EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT";
+const OWNER_WALLET="UQCbXnjJ-vVo3oGtovId9TRs_H-O3CO9irjgazyk8F39_XOu";
+const LOGO_URL="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const VERIFICATION_NANOTON="100000000";
+const WITHDRAW_FEE=70; const WITHDRAW_COOLDOWN_MS=24*60*60*1000;
+const MAX_BALANCE=5000000000; const MAX_MINING_PENDING=5000;
+let tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand();}
+let tonConnectUI=null, tonConnectUI_gate=null; let connectedWalletAddress="";
+try{if(window.TON_CONNECT_UI?.TonConnectUI){
+tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",buttonRootId:"ton-connect"});
+tonConnectUI_gate=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",buttonRootId:"ton-connect-gate"});
+let handler=function(w){if(w?.account?.address){connectedWalletAddress=w.account.address;document.getElementById("walletShort").innerText=w.account.address.slice(0,6)+"..."+w.account.address.slice(-4);let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText=w.account.address.slice(0,5)+"..."+w.account.address.slice(-3);localStorage.setItem("v_wallet",connectedWalletAddress);fetchProfileOnchain();}else{connectedWalletAddress="";document.getElementById("walletShort").innerText="Connect Wallet";}checkWalletGate();updateVerificationUI();updateWithdrawUI();};
+tonConnectUI.onStatusChange(handler); tonConnectUI_gate.onStatusChange(handler);
+}}catch(e){}
+function checkWalletGate(){let gate=document.getElementById("walletGate"); if(!connectedWalletAddress){gate.style.display="flex";}else{gate.style.display="none";}}
+async function disconnectWallet(){try{if(tonConnectUI) await tonConnectUI.disconnect(); if(tonConnectUI_gate) await tonConnectUI_gate.disconnect();}catch(e){} connectedWalletAddress=""; localStorage.removeItem("v_wallet"); document.getElementById("walletShort").innerText="Connect Wallet"; document.getElementById("walletDisplayProfile").innerText="Not connected"; checkWalletGate(); alert("Wallet disconnected");}
+let soundOn=localStorage.getItem("zyq_sound")!=="off"; let audioCtx=null;
+function playZyqorixSound(){if(!soundOn) return; try{if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); let t=audioCtx.currentTime; [523.25,783.99,1046.5].forEach((f,i)=>{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.12,t+i*0.08);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.25);o.connect(g);g.connect(audioCtx.destination);o.start(t+i*0.08);o.stop(t+i*0.08+0.3);});}catch(e){}}
+function toggleSound(){soundOn=!soundOn; localStorage.setItem("zyq_sound",soundOn?"on":"off"); document.getElementById("soundBtn").innerText=soundOn?"🔊 Sound ON":"🔇 Sound OFF"; if(soundOn) playZyqorixSound();}
+const urlParams=new URLSearchParams(window.location.search); const telegramUserId=tg?.initDataUnsafe?.user?.id?.toString()||"";
+let tgId=localStorage.getItem("v_tgId")||telegramUserId||("id_"+Math.floor(Math.random()*10000000)); localStorage.setItem("v_tgId",tgId);
+let tgName=tg?.initDataUnsafe?.user?.first_name||tg?.initDataUnsafe?.user?.username||localStorage.getItem("v_tgName")||"Miner"; if(tgName!=="Miner")localStorage.setItem("v_tgName",tgName);
+document.getElementById("userName").innerText=tgName==="Miner"?"Miner":tgName+"'s Miner"; document.getElementById("refLink").innerText="https://t.me/ZYQORIX_BOT?start="+tgId; document.getElementById("userIdShow").innerText=tgId;
+let poolBalance=Number(localStorage.getItem("v_balance")||0)||0, miningPending=Number(localStorage.getItem("v_mining_pending")||0)||0; if(miningPending>MAX_MINING_PENDING||miningPending<0) miningPending=0;
+let currentMinerLevel=Math.max(1,Math.min(1000,Math.floor(Number(localStorage.getItem("v_miner_level")||1))));
+let livePriceUsd=parseFloat(localStorage.getItem("v_last_real_price")||"0")||0.00001409; let onChainBalance=Number(localStorage.getItem("v_onchain_cached")||0)||0;
+function safeNum(v,f=0){if(v===null||v===undefined||String(v).trim()==="")return f;const n=Number(v);return Number.isFinite(n)?n:f;}
+function readArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[];}catch(_){return[];}}
+const refKey="refs_of_"+tgId; const refClaimedKey="v_ref_claimed_"+tgId; const teamWalletKey="v_team_wallet_"+tgId; const teamClaimedKey="v_team_claimed_"+tgId;
+let refClaimed=Math.max(0,safeNum(localStorage.getItem(refClaimedKey),0)); let teamWallet=safeNum(localStorage.getItem(teamWalletKey),0); let teamClaimed=safeNum(localStorage.getItem(teamClaimedKey),0);
+let visibleLevels=20; let isClaiming=false;
+function getMiningRatePerDay(lvl){return 3+(lvl-1)*0.2121212121;} function getVantaPerSec(lvl){return getMiningRatePerDay(lvl)/86400;}
+function getCostForLevel(lvl){if(lvl<=1)return 0; if(lvl==2)return 100; if(lvl==3)return 125; if(lvl==4)return 150; if(lvl==5)return 200; if(lvl==6)return 250; if(lvl==7)return 300; if(lvl==8)return 350; if(lvl==9)return 400; if(lvl==10)return 500; return 500+(lvl-10)*50;}
+function getTotalNeededForLevel(t){let total=0; for(let i=2;i<=t;i++) total+=getCostForLevel(i); return total;}
+function getCorrectLevelForBalance(base){if(base<100)return 1; let lvl=1; for(let i=2;i<=1000;i++){if(base>=getTotalNeededForLevel(i)) lvl=i; else break;} return lvl;}
+function autoJumpLevel(){const combined=poolBalance+onChainBalance; const correct=getCorrectLevelForBalance(combined>0?combined:poolBalance); if(correct>currentMinerLevel){currentMinerLevel=correct; localStorage.setItem("v_miner_level",String(currentMinerLevel));}}
+function getDailyCap(){return getMiningRatePerDay(currentMinerLevel);} function getTodayKey(){const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function getMinedToday(){return safeNum(localStorage.getItem("v_mined_today_"+tgId+"_"+getTodayKey()),0);} function addMinedToday(a){let k="v_mined_today_"+tgId+"_"+getTodayKey(); let cur=getMinedToday()+a; localStorage.setItem(k,String(cur)); return cur;}
+function updateDailyUI(){let cap=getDailyCap(), mined=getMinedToday(); document.getElementById("minedTodayShow").innerText=mined.toFixed(2); document.getElementById("dailyCapShow").innerText=cap.toFixed(2); document.getElementById("dailyProgressBar").style.width=Math.min(100,(mined/cap)*100)+"%";}
+function applyOfflineMining(){let last=safeNum(localStorage.getItem("v_last_mine_time"),0); if(last>0){let diff=Math.floor((Date.now()-last)/1000); if(diff>0&&diff<86400){let remaining=getDailyCap()-getMinedToday(); if(remaining>0){let earn=getVantaPerSec(currentMinerLevel)*diff; if(earn>remaining) earn=remaining; if(earn>0){miningPending+=earn; addMinedToday(earn); localStorage.setItem("v_mining_pending",String(miningPending));}}} localStorage.setItem("v_last_mine_time",String(Date.now()));}
+const DAILY_REWARDS=[1,3,5,7,9,11,15]; function getDateStr(o=0){let d=new Date(); d.setDate(d.getDate()+o); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function getDailyCheckData(){return {lastDate:localStorage.getItem("v_daily_last")||"",streak:Number(localStorage.getItem("v_daily_streak")||"0")};}
+function updateDailyCheckUI(){let {lastDate,streak}=getDailyCheckData(); let today=getDateStr(0), yesterday=getDateStr(-1); let currentStreak=streak, canClaim=true; if(lastDate===today) canClaim=false; else if(lastDate!==yesterday&&lastDate!==""){currentStreak=0; localStorage.setItem("v_daily_streak","0");} let nextDay=lastDate===today?currentStreak:currentStreak+1; if(nextDay>7) nextDay=1; if(!lastDate) nextDay=1; let nextReward=DAILY_REWARDS[nextDay-1]; let streakEl=document.getElementById("dailyCheckStreak"), btn=document.getElementById("dailyCheckBtn"), timerEl=document.getElementById("dailyCheckTimer"), daysEl=document.getElementById("dailyCheckDays"); if(streakEl) streakEl.innerText=lastDate===today?`Day ${currentStreak} Claimed ✅ • Come back tomorrow`:`Day ${nextDay} • +${nextReward} ZQR`; if(btn){btn.innerText=!canClaim?"✅ Claimed":`Claim +${nextReward}`; btn.disabled=!canClaim;} if(timerEl) timerEl.innerText=lastDate===today?"Come back tomorrow":"Claim every day. Miss one day = reset!"; if(daysEl){daysEl.innerHTML=""; DAILY_REWARDS.forEach((r,i)=>{let dayNum=i+1, bg="bg-white/10 text-white/50"; if(lastDate===today&&dayNum<=currentStreak) bg="bg-green-500 text-black font-bold"; else if(lastDate!==today&&dayNum===nextDay) bg="bg-cyan-400 text-black font-bold animate-pulse"; let div=document.createElement("div"); div.className=`${bg} rounded-xl py-2 text-center text-[10px] flex-1`; div.innerHTML=`Day ${dayNum}<br>+${r}`; daysEl.appendChild(div);});}}
+function claimDailyCheck(){let {lastDate,streak}=getDailyCheckData(); let today=getDateStr(0), yesterday=getDateStr(-1); if(lastDate===today){alert("Already claimed today");return;} let newStreak=lastDate===yesterday?streak+1:1; if(newStreak>7) newStreak=1; let reward=DAILY_REWARDS[newStreak-1]; poolBalance+=reward; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_daily_last",today); localStorage.setItem("v_daily_streak",String(newStreak)); playZyqorixSound(); updateDailyCheckUI(); updateUI(); syncToSupabase(); alert(`Daily Check Day ${newStreak} Claimed! +${reward} ZQR 🎉`);}
+setInterval(updateDailyCheckUI,60000);
+async function fetchLivePrice(){
+  let newPrice=null;
+  try{let r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ZYQORIX_TOKEN_ADDRESS}`); let d=await r.json(); if(d.pairs&&d.pairs.length>0){let best=d.pairs.sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0]; newPrice=parseFloat(best.priceUsd);}}catch(e){}
+  if(!newPrice){try{let r2=await fetch(`https://api.ston.fi/v1/pools/${ZYQORIX_POOL_ADDRESS}`); let d2=await r2.json(); if(d2.pool&&d2.pool.lp_price_usd) newPrice=parseFloat(d2.pool.lp_price_usd);}catch(e){}}
+  if(!newPrice){try{let r3=await fetch(`https://tonapi.io/v2/rates?tokens=${ZYQORIX_TOKEN_ADDRESS}&currencies=usd`); let d3=await r3.json(); if(d3.rates&&d3.rates[ZYQORIX_TOKEN_ADDRESS]) newPrice=d3.rates[ZYQORIX_TOKEN_ADDRESS].prices?.USD;}catch(e){}}
+  if(newPrice&&newPrice>0){livePriceUsd=newPrice; localStorage.setItem("v_last_real_price",String(newPrice));}
+  let priceEl=document.getElementById("livePrice"); if(priceEl) priceEl.textContent="$"+livePriceUsd.toFixed(8)+" USDT • LIVE • STON.fi"; updateVaultUI();
 }
-
-async function ensureBSC(){
-  if(!window.ethereum) return false;
-  const chainId = await window.ethereum.request({method:"eth_chainId"});
-  if(chainId !== BSC_CHAIN_ID){
-    $("verifyStatus").textContent="⚠️ Wrong network. Switching to BSC...";
-    try{
-      await window.ethereum.request({method:"wallet_switchEthereumChain", params:[{chainId: BSC_CHAIN_ID}]});
-      toast("Switched to BNB Smart Chain ✅"); return true;
-    }catch(err){
-      if(err.code===4902){ await window.ethereum.request({method:"wallet_addEthereumChain", params:[BSC_PARAMS]}); return true; }
-      else{ $("verifyStatus").textContent="Please switch to BNB Smart Chain manually"; toast("Switch to BSC"); return false; }
-    }
-  }
-  return true;
+fetchLivePrice(); setInterval(fetchLivePrice,20000);
+function updateVaultUI(){let pool=poolBalance, onchain=onChainBalance, combined=pool+onchain, price=livePriceUsd||0.00001409; document.getElementById("combinedBalance").innerText=combined.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); document.getElementById("combinedUsd").innerText=(combined*price).toFixed(2); document.getElementById("combinedLevel").innerText=currentMinerLevel; document.getElementById("balProfile").innerText=Math.floor(pool).toLocaleString(); document.getElementById("balProfileOnchain").innerText=Math.floor(onchain).toLocaleString(); document.getElementById("pool").innerText=pool.toFixed(4); document.getElementById("poolUsd").textContent=`(~$${(pool*price).toFixed(4)})`; document.getElementById("lvl").innerText=currentMinerLevel;}
+async function fetchProfileOnchain(){let wallet=connectedWalletAddress||localStorage.getItem("v_wallet")||""; if(!wallet) return; let bal=0; try{let r=await fetch(`https://tonapi.io/v2/accounts/${wallet}/jettons?currencies=usd`,{cache:"no-store"}); let d=await r.json(); if(d?.balances){for(let j of d.balances){if((j.jetton?.symbol||"").toUpperCase()==="ZQR"||j.jetton?.address===ZYQORIX_TOKEN_ADDRESS){bal=Number(j.balance)/(10**(j.jetton?.decimals||9)); break;}}}}catch(e){} onChainBalance=bal; localStorage.setItem("v_onchain_cached",String(bal)); autoJumpLevel(); updateVaultUI();}
+setInterval(()=>{let w=connectedWalletAddress||localStorage.getItem("v_wallet"); if(w) fetchProfileOnchain();},15000); setTimeout(fetchProfileOnchain,1500);
+function getVerifiedWallet(){return localStorage.getItem("v_verified_wallet")||"";} function isVerified(){return localStorage.getItem("v_verified")==="1"&&getVerifiedWallet()!=="";}
+function updateVerificationUI(){let v=isVerified(); let status=document.getElementById("verificationStatus"), btn=document.getElementById("verifyBtn"), icon=document.getElementById("verificationIcon"); if(v){if(status)status.innerText="✅ Verified"; if(icon)icon.innerText="✅"; if(btn){btn.innerText="✅ VERIFIED"; btn.disabled=true;}}else{if(status)status.innerText="Not verified"; if(icon)icon.innerText="🔐"; if(btn){btn.innerText=connectedWalletAddress?"VERIFY WITH 0.1 TON":"CONNECT WALLET FIRST"; btn.disabled=false;}}}
+async function verifyAccount(){if(isVerified()){alert("Already verified");return;} if(!connectedWalletAddress){alert("Connect wallet first"); checkWalletGate(); return;} let btn=document.getElementById("verifyBtn"); btn.disabled=true; btn.innerText="Opening Wallet..."; try{let result=await tonConnectUI.sendTransaction({validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:OWNER_WALLET,amount:VERIFICATION_NANOTON}]}); if(!result?.boc) throw new Error("fail"); localStorage.setItem("v_verified_wallet",connectedWalletAddress); localStorage.setItem("v_verified","1"); playZyqorixSound(); updateVerificationUI(); await syncToSupabase(); alert("Verified! ✅");}catch(e){btn.disabled=false; btn.innerText="VERIFY WITH 0.1 TON"; alert("Verification failed");}}
+function isUserJoined(){let done=readArray("v_tasks_done"); return localStorage.getItem("v_joined_channel")==="true"||done.includes("join_channel");}
+function checkTasksUI(){let done=readArray("v_tasks_done"); let b=document.getElementById("taskBtn1"); if(b&&done.includes("join_channel")){b.innerText="✅ Done"; b.disabled=true;} updateReactUI(); updateBioUI(); updateDailyCheckUI();}
+function doTask(amount,taskId,link){let done=readArray("v_tasks_done"); if(done.includes(taskId)){alert("Already done");return;} let b=document.getElementById("taskBtn1"); if(b&&b.innerText.includes("Join")){window.open(link,"_blank"); b.innerText="Verify ✅"; return;} poolBalance+=amount; if(!done.includes(taskId)) done.push(taskId); if(taskId==="join_channel") localStorage.setItem("v_joined_channel","true"); localStorage.setItem("v_tasks_done",JSON.stringify(done)); localStorage.setItem("v_balance",String(poolBalance)); if(b){b.innerText="✅ Done"; b.disabled=true;} playZyqorixSound(); updateUI(); syncToSupabase();}
+function getReactTime(){return safeNum(localStorage.getItem("v_react_last"),0);} function updateReactUI(){let last=getReactTime(), now=Date.now(), diff=now-last, sixHours=6*60*60*1000; let el=document.getElementById("reactTimer"), btn=document.getElementById("reactBtn"); if(!el||!btn) return; if(diff>=sixHours||last===0){el.innerText="Ready! +5 ZQR"; btn.innerText="React"; btn.disabled=false;}else{let remain=sixHours-diff, h=Math.floor(remain/3600000), m=Math.floor((remain%3600000)/60000); el.innerText=`Next in ${h}h ${m}m`; btn.innerText=`${h}h ${m}m`; btn.disabled=true;}}
+setInterval(updateReactUI,1000);
+function doReactTask(){let last=getReactTime(), now=Date.now(), sixHours=6*60*60*1000; if(now-last<sixHours&&last!==0){alert("Please wait 6hrs");return;} window.open("https://t.me/ZYQORIX","_blank"); setTimeout(()=>{poolBalance+=5; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_react_last",String(Date.now())); playZyqorixSound(); updateUI(); updateReactUI(); syncToSupabase(); alert("+5 ZQR!");},3000);}
+function getBioTime(){return safeNum(localStorage.getItem("v_bio_last"),0);} function updateBioUI(){let last=getBioTime(), now=Date.now(), diff=now-last, day=24*60*60*1000; let el=document.getElementById("bioTimer"), btn=document.getElementById("bioBtn"); if(!el||!btn) return; if(diff>=day||last===0){el.innerText="Ready! +5 ZQR"; btn.innerText="Add Bio"; btn.disabled=false;}else{let remain=day-diff, h=Math.floor(remain/3600000); el.innerText=`Next in ${h}h`; btn.innerText=`${h}h`; btn.disabled=true;}}
+setInterval(updateBioUI,1000);
+function doBioTask(){let last=getBioTime(), now=Date.now(), day=24*60*60*1000; if(now-last<day&&last!==0){alert("Please wait 24hrs");return;} window.open("https://t.me/ZYQORIX_BOT","_blank"); setTimeout(()=>{poolBalance+=5; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_bio_last",String(Date.now())); playZyqorixSound(); updateUI(); updateBioUI(); syncToSupabase(); alert("+5 ZQR! Make sure https://t.me/ZYQORIX_BOT is in your Bio.");},3000);}
+function renderMiners(){let grid=document.getElementById("minersGrid"); if(!grid) return; grid.innerHTML=""; for(let i=1;i<=visibleLevels;i++){let rateDay=getMiningRatePerDay(i); let isActive=i===currentMinerLevel, isOwned=i<currentMinerLevel; let dotClass="timeline-dot ", cardClass="timeline-card ", leftHtml="", rightHtml=""; if(isOwned){dotClass+="owned"; cardClass+="owned"; leftHtml=`<div><p class="text-[13px] font-bold">Lvl ${i} <span class="text-[#00FF88]">✅</span></p><p class="text-[10px] text-white/50">${rateDay.toFixed(2)}/day • Owned</p></div>`; rightHtml=`<span class="text-[#00FF88] text-[10px] font-bold">UNLOCKED</span>`;} else if(isActive){dotClass+="active"; cardClass+="active"; leftHtml=`<div><p class="text-[13px] font-bold text-cyan-300">Lvl ${i} • ACTIVE ⚡</p><p class="text-[10px] text-cyan-200/70">${rateDay.toFixed(2)}/day • Mining</p></div>`; rightHtml=`<span class="text-cyan-300 text-[10px] font-bold animate-pulse">MINING</span>`;} else{dotClass+="locked"; cardClass+="locked"; leftHtml=`<div><p class="text-[13px] font-bold text-white/70">Lvl ${i}</p><p class="text-[10px] text-white/40">${rateDay.toFixed(2)}/day</p></div>`; rightHtml=`<span class="text-white/40 text-[10px]">LOCKED</span>`;} let item=document.createElement("div"); item.className="timeline-item"; item.innerHTML=`<div class="${dotClass}"></div><div class="${cardClass}">${leftHtml}${rightHtml}</div>`; grid.appendChild(item);} document.getElementById("myLevelShow").innerText=currentMinerLevel; document.getElementById("mySpeedShow").innerText=getMiningRatePerDay(currentMinerLevel).toFixed(2)+" /day";}
+function loadMoreMiners(){visibleLevels=Math.min(1000,visibleLevels+20); renderMiners();}
+function updateFriendsUI(){let myRefs=readArray(refKey); let count=myRefs.length; let available=Math.max(0,count*100-refClaimed); document.getElementById("refCount").innerText=count; document.getElementById("refEarned").innerText=available+" ZQR"; document.getElementById("refRewardText").innerText=available>0?available+" available":"All claimed"; document.getElementById("teamWalletText").innerText=Math.max(0,teamWallet-teamClaimed).toFixed(4)+" ZQR available";}
+async function registerReferral(){
+  let inviter=urlParams.get("ref")||urlParams.get("start")||tg?.initDataUnsafe?.start_param||"";
+  if(!inviter||inviter===String(tgId)) return;
+  if(localStorage.getItem("v_inviter_registered")==="1") return;
+  try{
+    let {data}=await supabaseClient.from("vanta_referrals").select("*").eq("invited_id",String(tgId)).maybeSingle();
+    if(data){localStorage.setItem("v_inviter_registered","1"); return;}
+    let u=tg?.initDataUnsafe?.user||{};
+    let realFirstName=u.first_name||tgName||"Miner";
+    let realLastName=u.last_name?" "+u.last_name:"";
+    let realFullName=(realFirstName+realLastName).trim();
+    let realUsername=u.username||"";
+    let displayName=realUsername?realFullName+" (@"+realUsername+")":realFullName;
+    await supabaseClient.from("vanta_referrals").insert({inviter_id:String(inviter),invited_id:String(tgId),invited_name:String(displayName),invited_username:String(realUsername),invited_first_name:String(realFullName)});
+    localStorage.setItem("v_inviter_registered","1"); localStorage.setItem("v_inviter",inviter);
+  }catch(e){console.log("ref error",e);}
 }
-
-// 1. CONNECT WALLET SEPARATE
-$("connectButton").addEventListener("click", async()=>{
- if(!window.ethereum){ toast("Open in Trust Wallet or Binance Web3 DApp browser"); return; }
- try{
-  const accounts=await window.ethereum.request({method:"eth_requestAccounts"});
-  userWallet=accounts[0];
-  $("walletAddr").textContent="Connected: "+userWallet.slice(0,6)+"..."+userWallet.slice(-4)+" ("+userWallet+")";
-  $("connectButton").textContent="✅ Connected: "+userWallet.slice(0,6)+"..."+userWallet.slice(-4);
-  $("connectButton").disabled=true;
-  $("verifyButton").disabled=false;
-  toast("Wallet connected! Now verify $0.30");
-  await ensureBSC();
- }catch(e){ toast("Connect failed"); }
-});
-
-// 2. VERIFICATION SEPARATE — $0.30
-$("verifyButton").addEventListener("click", async()=>{
- if(!userWallet){ toast("Connect wallet first!"); return; }
- try{
-  const ok=await ensureBSC(); if(!ok) return;
-  $("verifyStatus").textContent="Sending $0.30 for liquidity on BSC...";
-  const wei=BigInt(Math.floor(parseFloat(VERIFY_BNB)*1e18));
-  const valueHex="0x"+wei.toString(16);
-  const txHash=await window.ethereum.request({ method:"eth_sendTransaction", params:[{from:userWallet, to:OWNER_WALLET, value:valueHex}] });
-  localStorage.setItem("zqr_verified","1");
-  $("verifyStatus").innerHTML="✅ Verified! <a href='https://bscscan.com/tx/"+txHash+"' target='_blank' style='color:#54e7ff'>View Tx on BscScan — $0.30 for liquidity</a>";
-  $("verifyButton").textContent="✅ Verified — $0.30 Paid (Liquidity)";
-  $("verifyButton").disabled=true;
-  toast("Verified! $0.30 sent to owner for liquidity");
- }catch(e){ $("verifyStatus").textContent="Failed: "+(e.message||"Cancelled"); toast("Verification failed"); }
-});
-
-if(localStorage.getItem("zqr_verified")==="1"){
- $("verifyButton").textContent="✅ Verified — $0.30 Paid"; $("verifyButton").disabled=true;
- $("connectButton").textContent="✅ Wallet Connected"; $("connectButton").disabled=true;
- $("verifyStatus").textContent="Already verified";
- $("verifyButton").disabled=true;
+async function loadMyReferrals(){
+  try{
+    let {data}=await supabaseClient.from("vanta_referrals").select("*").eq("inviter_id",String(tgId)).order("created_at",{ascending:false});
+    let count=data?data.length:0; document.getElementById("refCount").innerText=count;
+    localStorage.setItem(refKey,JSON.stringify((data||[]).map(r=>r.invited_id)));
+    let list=document.getElementById("refList"); if(!list) return; list.innerHTML="";
+    if(count===0){list.innerHTML='<p class="text-center text-white/40 text-xs mt-4">No referrals yet</p>';}
+    else{data.forEach((r)=>{
+      let displayName=r.invited_name||r.invited_first_name||"";
+      let username=r.invited_username||"";
+      if(!displayName) displayName="User "+String(r.invited_id).slice(-4);
+      let subText="";
+      if(username&&!displayName.includes("@")) subText="@"+username;
+      else if(!username) subText="ID: "+r.invited_id;
+      else subText="";
+      let initial=displayName.charAt(0).toUpperCase();
+      let item=document.createElement("div"); item.className="glass p-3 text-xs flex justify-between items-center";
+      item.innerHTML=`<div class="flex items-center gap-2"><div class="w-9 h-9 bg-blue-500/30 rounded-full flex items-center justify-center font-bold text-[14px]">${initial}</div><div><p class="font-bold text-[13px]">${displayName}</p><p class="text-white/40 text-[10px]">${subText} • ${r.created_at?new Date(r.created_at).toLocaleDateString():""}</p></div></div><span class="text-blue-300 text-[10px]">+100 ZQR</span>`;
+      list.appendChild(item);
+    });}
+    updateFriendsUI();
+  }catch(e){console.log(e);}
 }
+function claimReferral(){let myRefs=readArray(refKey); let unclaimed=Math.max(0,myRefs.length*100-refClaimed); if(unclaimed<=0){alert("All claimed");return;} if(!isVerified()){alert("Verify first");return;} refClaimed+=unclaimed; localStorage.setItem(refClaimedKey,String(refClaimed)); poolBalance+=unclaimed; localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); syncToSupabase(); alert("+"+unclaimed+" ZQR");}
+function claimTeamWallet(){let av=Math.max(0,teamWallet-teamClaimed); if(av<=0){alert("No team reward yet");return;} teamClaimed+=av; poolBalance+=av; localStorage.setItem(teamClaimedKey,String(teamClaimed)); localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); syncToSupabase(); alert("Team +"+av.toFixed(4)+" ZQR");}
+function copyRef(){let l=document.getElementById("refLink").innerText; navigator.clipboard?.writeText(l).then(()=>alert("Copied!"));}
+async function claimMining(){if(miningPending<=0){alert("Nothing to claim");return;} if(isClaiming) return; isClaiming=true; let btn=document.getElementById("claimBtn"); btn.innerText="Claiming..."; btn.disabled=true; let amount=miningPending; poolBalance+=amount; miningPending=0; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_mining_pending","0"); playZyqorixSound(); updateUI(); btn.innerText="CLAIM TO POOL"; btn.disabled=false; isClaiming=false; await syncToSupabase(); alert("+"+amount.toFixed(4)+" ZQR");}
+async function syncToSupabase(){try{await supabaseClient.from("vanta_users").upsert({tg_id:String(tgId),username:String(tgName),balance:Number(poolBalance),mining_pending:Number(miningPending),miner_level:Number(currentMinerLevel),verified:isVerified(),verified_wallet:getVerifiedWallet(),wallet:connectedWalletAddress||localStorage.getItem("v_wallet")||"",ref_claimed:Number(refClaimed),team_wallet:Number(teamWallet),team_claimed:Number(teamClaimed),total_refs:readArray(refKey).length,updated_at:new Date().toISOString()},{onConflict:'tg_id'});}catch(e){}}
+async function saveWithdrawToSupabase(req){try{let {error}=await supabaseClient.from("withdraws").insert({user_id:String(req.userId),user_name:String(req.userName),amount:Number(req.amount),receive:Number(req.receive),wallet:String(req.wallet),status:"pending"}); if(error) throw error; return true;}catch(e){return false;}}
+async function loadWithdrawsFromSupabase(){let div=document.getElementById("withdrawHistory"); try{div.innerHTML='<p class="text-white/30 text-xs text-center">Loading history...</p>'; let {data}=await supabaseClient.from("withdraws").select("*").eq("user_id",String(tgId)).order("created_at",{ascending:false}).limit(20); if(!data||data.length===0){div.innerHTML='<p class="text-white/30 text-xs text-center">No withdrawals yet</p>'; return;} div.innerHTML=""; data.forEach(r=>{let row=document.createElement("div"); row.className="glass p-2 mt-2 text-[11px] flex justify-between"; row.innerHTML=`<div><b>${r.amount} → ${r.receive}</b><br><span class="text-white/40 text-[9px]">${new Date(r.created_at).toLocaleString()}</span></div><span class="${r.status==='pending'?'text-yellow-400':'text-green-400'} font-bold">${String(r.status).toUpperCase()}</span>`; div.appendChild(row);});}catch(e){div.innerHTML='<p class="text-red-400 text-xs text-center">Failed to load</p>';}}
+function getLastWithdrawLocal(){return safeNum(localStorage.getItem("v_last_withdraw_"+tgId),0);} function getWithdrawRemainingMs(){let last=getLastWithdrawLocal(); if(!last) return 0; let diff=Date.now()-last; if(diff>=WITHDRAW_COOLDOWN_MS) return 0; return WITHDRAW_COOLDOWN_MS-diff;} function formatWithdrawRemaining(ms){let h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000); return `${h}h ${m}m ${s}s`;}
+function updateWithdrawUI(){calcReceive(); let b=document.getElementById("withdrawBtn"), cdEl=document.getElementById("withdrawCooldownText"), remain=getWithdrawRemainingMs(); if(cdEl){if(remain>0){cdEl.innerText=`⏳ Next withdrawal in ${formatWithdrawRemaining(remain)}`; cdEl.className="text-xs text-red-400 mt-1 font-bold";}else{cdEl.innerText=`✅ Withdrawal Available - 1 per 24 hours`; cdEl.className="text-xs text-yellow-300 mt-1 font-bold";}} if(b){if(!isVerified()){b.innerText="🔐 VERIFY TO WITHDRAW"; b.disabled=false;}else if(remain>0){b.innerText=`⏳ WAIT ${formatWithdrawRemaining(remain)}`; b.disabled=true;}else{b.innerText="Request Withdrawal"; b.disabled=false;}}}
+setInterval(updateWithdrawUI,1000);
+async function checkWithdrawCooldownSupabase(){try{let {data}=await supabaseClient.from("withdraws").select("created_at").eq("user_id",String(tgId)).order("created_at",{ascending:false}).limit(1).maybeSingle(); if(data&&data.created_at){let last=new Date(data.created_at).getTime(); let diff=Date.now()-last; if(diff<WITHDRAW_COOLDOWN_MS){localStorage.setItem("v_last_withdraw_"+tgId,String(last)); return WITHDRAW_COOLDOWN_MS-diff;}}}catch(e){} return getWithdrawRemainingMs();}
+function calcReceive(){let i=document.getElementById("withdrawAmt"), r=document.getElementById("receiveAmt"); let a=Number(i.value.trim()||0); let rec=Math.max(0,a-WITHDRAW_FEE); if(r) r.innerText=rec.toFixed(2); if(i){i.placeholder="Enter 2000"; i.min=2000; i.max=2000;}}
+async function withdraw(){if(!connectedWalletAddress){alert("Connect wallet first"); checkWalletGate(); return;} if(!isVerified()){alert("Please verify with 0.1 TON first");return;} let localRemain=getWithdrawRemainingMs(); if(localRemain>0){alert(`Already withdrawn. Next in ${formatWithdrawRemaining(localRemain)}`); return;} let serverRemain=await checkWithdrawCooldownSupabase(); if(serverRemain>0){alert(`Already withdrawn. Next in ${formatWithdrawRemaining(serverRemain)}`); return;} let amount=Number(document.getElementById("withdrawAmt").value.trim()); if(amount!==2000){alert("You must withdraw exactly 2000 ZQR"); return;} if(amount>poolBalance){alert("Insufficient balance");return;} let wallet=connectedWalletAddress||localStorage.getItem("v_wallet")||""; if(!wallet){alert("Connect wallet");return;} let receive=amount-WITHDRAW_FEE; if(!confirm(`Withdrawal Summary\n\nAmount: 2000 ZQR\nFee: 70 ZQR\nYou will receive: ${receive} ZQR\n\nNext withdrawal in 24hrs`)) return; let req={amount,receive,wallet,userId:String(tgId),userName:String(tgName)}; let saved=await saveWithdrawToSupabase(req); if(!saved){alert("Network error. Try again.");return;} localStorage.setItem("v_last_withdraw_"+tgId,String(Date.now())); poolBalance-=amount; localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); loadWithdrawsFromSupabase(); await syncToSupabase(); document.getElementById("withdrawAmt").value=""; calcReceive(); updateWithdrawUI(); alert(`Withdrawal request submitted! You will receive ${receive} ZQR.`);}
+let lastRenderedLevel=-1;
+function updateUI(){autoJumpLevel(); if(poolBalance>MAX_BALANCE){poolBalance=MAX_BALANCE; localStorage.setItem("v_balance",String(MAX_BALANCE));} poolBalance=Math.max(0,safeNum(poolBalance,0)); miningPending=Math.max(0,safeNum(miningPending,0)); document.getElementById("miningBalance").innerText=miningPending.toFixed(5); document.getElementById("miningProfile").innerText=miningPending.toFixed(5); let rate=getVantaPerSec(currentMinerLevel); document.getElementById("power").innerText=(3.02+currentMinerLevel*0.06).toFixed(2); let minedToday=getMinedToday(), cap=getDailyCap(); document.getElementById("miningPlus").innerText=minedToday>=cap?"DAILY LIMIT REACHED ✅":"+"+rate.toFixed(6)+" /sec"; document.getElementById("rateShow").innerText=rate.toFixed(6); document.getElementById("dayRate").innerText=getMiningRatePerDay(currentMinerLevel).toFixed(2)+"/day"; let badge=document.getElementById("joinStatusBadge"); if(isUserJoined()){badge.innerText="● JOINED"; badge.className="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500";}else{badge.innerText="● NOT JOINED"; badge.className="bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500";} calcReceive(); updateFriendsUI(); updateVerificationUI(); updateWithdrawUI(); updateReactUI(); updateBioUI(); updateDailyCheckUI(); updateVaultUI(); updateDailyUI(); if(lastRenderedLevel!==currentMinerLevel){renderMiners(); lastRenderedLevel=currentMinerLevel;}}
+function showPage(page){if(!connectedWalletAddress){checkWalletGate(); return;} ["mine","tasks","miners","friends","profile"].forEach(n=>{let el=document.getElementById(n+"-page"); if(el) el.classList.add("hidden"); let nav=document.getElementById("nav-"+n); if(nav){nav.classList.remove("nav-active"); nav.style.opacity="0.6";}}); document.getElementById(page+"-page").classList.remove("hidden"); let navActive=document.getElementById("nav-"+page); if(navActive){navActive.classList.add("nav-active"); navActive.style.opacity="1";} if(page==="miners") renderMiners(); if(page==="tasks") checkTasksUI(); if(page==="friends") loadMyReferrals(); if(page==="profile"){loadWithdrawsFromSupabase(); fetchProfileOnchain(); fetchLivePrice(); updateVaultUI();}}
+applyOfflineMining(); registerReferral();
+setInterval(()=>{let cap=getDailyCap(), mined=getMinedToday(); if(mined>=cap) return; let rate=getVantaPerSec(currentMinerLevel); let toAdd=rate; if(mined+toAdd>cap) toAdd=cap-mined; if(toAdd<=0) return; miningPending+=toAdd; addMinedToday(toAdd); localStorage.setItem("v_mining_pending",String(miningPending)); localStorage.setItem("v_last_mine_time",String(Date.now())); updateUI();},1000);
+let savedWallet=localStorage.getItem("v_wallet"); if(savedWallet){connectedWalletAddress=savedWallet; document.getElementById("walletShort").innerText="✅ "+savedWallet.slice(0,6)+"..."+savedWallet.slice(-4); let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText=savedWallet.slice(0,5)+"..."+savedWallet.slice(-3);}
+document.getElementById("soundBtn").innerText=soundOn?"🔊 Sound ON":"🔇 Sound OFF";
+updateUI(); renderMiners(); checkTasksUI(); updateFriendsUI(); loadMyReferrals(); loadWithdrawsFromSupabase(); updateReactUI(); updateBioUI(); checkWalletGate();
+setInterval(()=>{syncToSupabase();},15000);
 </script>
 </body>
 </html>
