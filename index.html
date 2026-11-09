@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -68,6 +68,7 @@ let tonConnectUI=null; let connectedWalletAddress="";
 function initTonConnect(){
   try{
     if(!window.TON_CONNECT_UI?.TonConnectUI) return;
+    if(tonConnectUI) return;
     tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",buttonRootId:"ton-connect"});
     tonConnectUI.onStatusChange(function(w){
       if(w?.account?.address){connectedWalletAddress=w.account.address;document.getElementById("walletShort").innerText=w.account.address.slice(0,6)+"..."+w.account.address.slice(-4);let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText=w.account.address.slice(0,5)+"..."+w.account.address.slice(-3);localStorage.setItem("v_wallet",connectedWalletAddress);fetchProfileOnchain();}
@@ -77,7 +78,7 @@ function initTonConnect(){
     if(tonConnectUI.account?.address){connectedWalletAddress=tonConnectUI.account.address;}
   }catch(e){console.log("ton init fail",e);}
 }
-initTonConnect();
+// FIXED: No auto initTonConnect() here - wallet only loads when you press CONNECT WALLET, so mining starts first
 async function connectWalletManual(){
   if(!tonConnectUI){initTonConnect();}
   if(!tonConnectUI){alert("Wallet system still loading, wait 3 sec and try again");return;}
