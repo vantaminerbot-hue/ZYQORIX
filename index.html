@@ -54,8 +54,8 @@ button:disabled{opacity:.65;cursor:not-allowed}
 <div class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 flex justify-around p-2 max-w-md mx-auto z-50"><button onclick="showPage('mine')" id="nav-mine" class="nav-active flex flex-col items-center"><span class="text-xl">⛏️</span><span class="text-[10px]">Mine</span></button><button onclick="showPage('tasks')" id="nav-tasks" class="flex flex-col items-center opacity-60"><span class="text-xl">📝</span><span class="text-[10px]">Tasks</span></button><button onclick="showPage('miners')" id="nav-miners" class="flex flex-col items-center opacity-60"><span class="text-xl">⚡</span><span class="text-[10px]">Miners</span></button><button onclick="showPage('friends')" id="nav-friends" class="flex flex-col items-center opacity-60"><span class="text-xl">👥</span><span class="text-[10px]">Friends</span></button><button onclick="showPage('profile')" id="nav-profile" class="flex flex-col items-center opacity-60"><span class="text-xl">👤</span><span class="text-[10px]">Profile</span></button></div>
 <script>
 "use strict";
-const SUPABASE_URL="https://ydrplmyfchfimkwcqyqw.supabase.co";
-const SUPABASE_KEY="sb_publishable_zQIHYhN3xg-7p8EtXxXRrQ_NZeGwL3f";
+const SUPABASE_URL="https://fqouhzxwmjfcynyxqqsz.supabase.co";
+const SUPABASE_KEY="sb_publishable_ENIIXoVDH-EQvxhhguDjEg_aGU8msbu";
 const ZYQORIX_TOKEN_ADDRESS="EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_";
 const ZYQORIX_POOL_ADDRESS="EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT";
 const OWNER_WALLET="UQCbXnjJ-vVo3oGtovId9TRs_H-O3CO9irjgazyk8F39_XOu";
@@ -78,7 +78,6 @@ function initTonConnect(){
     if(tonConnectUI.account?.address){connectedWalletAddress=tonConnectUI.account.address;}
   }catch(e){console.log("ton init fail",e);}
 }
-// FIXED: No auto initTonConnect() here - wallet only loads when you press CONNECT WALLET, so mining starts first
 async function connectWalletManual(){
   if(!tonConnectUI){initTonConnect();}
   if(!tonConnectUI){alert("Wallet system still loading, wait 3 sec and try again");return;}
