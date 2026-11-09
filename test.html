@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><body style="background:black;color:white;font-size:30px;text-align:center;padding-top:100px">
+<p>TEST</p>
+<p id="miningPlus">+0.0000 /sec</p>
+<p id="status">Loading...</p>
+<script>
+let n = 0;
+document.getElementById("status").innerText = "JS IS WORKING";
+setInterval(function(){
+  n = n + 0.000035;
+  document.getElementById("miningPlus").innerText = "+" + n.toFixed(6) + " /sec";
+}, 1000);
+</script>
+</body></html>
