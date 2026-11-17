@@ -55,33 +55,33 @@ const tg=window.Telegram?.WebApp||null;
 if(tg){tg.ready();tg.expand();}
 
 const user=tg?.initDataUnsafe?.user||{};
-const telegramUserId=String(user.id||localStorage.getItem("v_tgId")||("id_"+Math.floor(Math.random()*1e7)));
+const telegramUserId=String(user.id||localStorage.getItem("zqr_tgId")||("id_"+Math.floor(Math.random()*1e7)));
 const tgId=telegramUserId;
-localStorage.setItem("v_tgId",tgId);
+localStorage.setItem("zqr_tgId",tgId);
 
-const tgName=user.first_name||user.username||localStorage.getItem("v_tgName")||"Miner";
+const tgName=user.first_name||user.username||localStorage.getItem("zqr_tgName")||"Miner";
 const tgUsername=user.username||"";
 
 document.getElementById("userName").textContent=tgName+"’s Miner";
 document.getElementById("userIdShow").textContent=tgId;
 document.getElementById("refLink").textContent="https://t.me/ZYQORIX_BOT?start="+tgId;
 
-let poolBalance=Math.max(0,Number(localStorage.getItem("v_balance")||0));
-let miningPending=Math.max(0,Number(localStorage.getItem("v_mining_pending")||0));
-let currentMinerLevel=Math.max(1,Math.min(1000,Number(localStorage.getItem("v_miner_level")||1)));
-let onChainBalance=Number(localStorage.getItem("v_onchain_cached")||0);
-let livePriceUsd=Number(localStorage.getItem("v_last_real_price")||0.00001409);
+let poolBalance=Math.max(0,Number(localStorage.getItem("zqr_balance")||0));
+let miningPending=Math.max(0,Number(localStorage.getItem("zqr_mining_pending")||0));
+let currentMinerLevel=Math.max(1,Math.min(1000,Number(localStorage.getItem("zqr_miner_level")||1)));
+let onChainBalance=Number(localStorage.getItem("zqr_onchain_cached")||0);
+let livePriceUsd=Number(localStorage.getItem("zqr_last_real_price")||0.00001409);
 let connectedWalletAddress="",tonConnectUI=null,visibleLevels=20,isClaiming=false;
 
 const save=()=>{
- localStorage.setItem("v_balance",String(poolBalance));
- localStorage.setItem("v_mining_pending",String(miningPending));
- localStorage.setItem("v_miner_level",String(currentMinerLevel));
+ localStorage.setItem("zqr_balance",String(poolBalance));
+ localStorage.setItem("zqr_mining_pending",String(miningPending));
+ localStorage.setItem("zqr_miner_level",String(currentMinerLevel));
 };
 
 const num=(x)=>Number.isFinite(Number(x))?Number(x):0;
 const dayKey=()=>{let d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
-const minedKey=()=>"v_mined_today_"+tgId+"_"+dayKey();
+const minedKey=()=>"zqr_mined_today_"+tgId+"_"+dayKey();
 const minedToday=()=>num(localStorage.getItem(minedKey()));
 const rateDay=()=>3+(currentMinerLevel-1)*0.2121212121;
 const rateSec=()=>rateDay()/86400;
@@ -94,7 +94,7 @@ const fmtTime=ms=>{
  return `${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(r).padStart(2,"0")}s`;
 };
 
-let soundOn=localStorage.getItem("zyq_sound")!=="off",audioCtx=null;
+let soundOn=localStorage.getItem("zqr_sound")!=="off",audioCtx=null;
 
 function playSound(){
  if(!soundOn)return;
@@ -116,7 +116,7 @@ function playSound(){
 
 function toggleSound(){
  soundOn=!soundOn;
- localStorage.setItem("zyq_sound",soundOn?"on":"off");
+ localStorage.setItem("zqr_sound",soundOn?"on":"off");
  document.getElementById("soundBtn").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";
  playSound();
 }
@@ -130,7 +130,7 @@ function initTonConnect(){
  tonConnectUI.onStatusChange(w=>{
   connectedWalletAddress=w?.account?.address||"";
   if(connectedWalletAddress){
-   localStorage.setItem("v_wallet",connectedWalletAddress);
+   localStorage.setItem("zqr_wallet",connectedWalletAddress);
    document.getElementById("walletShort").textContent=short(connectedWalletAddress);
    document.getElementById("walletDisplayProfile").textContent=short(connectedWalletAddress);
    refreshOnchain();
@@ -166,15 +166,15 @@ async function connectWalletManual(){
 async function disconnectWallet(){
  try{await tonConnectUI?.disconnect()}catch(e){}
  connectedWalletAddress="";
- localStorage.removeItem("v_wallet");
- localStorage.removeItem("v_verified");
- localStorage.removeItem("v_verified_wallet");
+ localStorage.removeItem("zqr_wallet");
+ localStorage.removeItem("zqr_verified");
+ localStorage.removeItem("zqr_verified_wallet");
  updateUI();
 }
 
 function verified(){
- return localStorage.getItem("v_verified")==="1"&&
- localStorage.getItem("v_verified_wallet")===connectedWalletAddress&&
+ return localStorage.getItem("zqr_verified")==="1"&&
+ localStorage.getItem("zqr_verified_wallet")===connectedWalletAddress&&
  !!connectedWalletAddress;
 }async function verifyAccount(){
  if(!connectedWalletAddress){
@@ -212,8 +212,8 @@ function verified(){
   if(error)throw error;
 
   if(data?.verified===true){
-   localStorage.setItem("v_verified","1");
-   localStorage.setItem("v_verified_wallet",connectedWalletAddress);
+   localStorage.setItem("zqr_verified","1");
+   localStorage.setItem("zqr_verified_wallet",connectedWalletAddress);
    alert("Wallet verification confirmed!");
    updateUI();
   }else{
@@ -326,7 +326,7 @@ async function refreshOnchain(){
   if(error)throw error;
   if(data&&Number.isFinite(Number(data.balance))){
    onChainBalance=Number(data.balance);
-   localStorage.setItem("v_onchain_cached",String(onChainBalance));
+   localStorage.setItem("zqr_onchain_cached",String(onChainBalance));
    updateUI();
   }
  }catch(e){
@@ -417,7 +417,7 @@ async function doTask(reward,task,link){
 
 async function doReactTask(){
  window.open("https://t.me/ZYQORIX","_blank");
- const last=Number(localStorage.getItem("v_last_react")||0);
+ const last=Number(localStorage.getItem("zqr_last_react")||0);
  if(Date.now()-last<REACT_COOLDOWN){
   alert("Please wait before submitting another reaction task.");
   return;
@@ -431,7 +431,7 @@ async function doReactTask(){
    body:{telegram_id:tgId,task_type:"react_post",reward:5}
   });
   if(error)throw error;
-  localStorage.setItem("v_last_react",String(Date.now()));
+  localStorage.setItem("zqr_last_react",String(Date.now()));
   document.getElementById("reactTimer").textContent="Submitted for review";
   alert(data?.message||"Reaction task submitted.");
  }catch(e){
@@ -463,7 +463,7 @@ async function submitBioTask(){
 }
 
 function updateReactUI(){
- const last=Number(localStorage.getItem("v_last_react")||0);
+ const last=Number(localStorage.getItem("zqr_last_react")||0);
  const remaining=REACT_COOLDOWN-(Date.now()-last);
  const button=document.getElementById("reactBtn");
  if(remaining>0){
@@ -476,7 +476,7 @@ function updateReactUI(){
 }
 
 function updateBioUI(){
- const last=Number(localStorage.getItem("v_last_bio")||0);
+ const last=Number(localStorage.getItem("zqr_last_bio")||0);
  const remaining=BIO_COOLDOWN-(Date.now()-last);
  if(remaining>0){
   document.getElementById("bioTimer").textContent="Next submission in "+fmtTime(remaining);
@@ -485,12 +485,12 @@ function updateBioUI(){
 
 function claimDailyCheck(){
  const today=dayKey();
- if(localStorage.getItem("v_checkin_"+tgId)===today){
+ if(localStorage.getItem("zqr_checkin_"+tgId)===today){
   alert("You have already claimed today's check-in.");
   return;
  }
  poolBalance+=5;
- localStorage.setItem("v_checkin_"+tgId,today);
+ localStorage.setItem("zqr_checkin_"+tgId,today);
  save();
  playSound();
  updateUI();
@@ -500,7 +500,7 @@ function claimDailyCheck(){
 }
 
 function updateDailyCheck(){
- const claimed=localStorage.getItem("v_checkin_"+tgId)===dayKey();
+ const claimed=localStorage.getItem("zqr_checkin_"+tgId)===dayKey();
  const btn=document.getElementById("dailyCheckBtn");
  btn.disabled=claimed;
  btn.textContent=claimed?"Claimed ✓":"Claim +5";
@@ -595,7 +595,7 @@ async function loadPrice(){
   const pair=data.pairs?.find(p=>p.chainId==="ton"&&p.priceUsd);
   if(pair){
    livePriceUsd=Number(pair.priceUsd);
-   localStorage.setItem("v_last_real_price",String(livePriceUsd));
+   localStorage.setItem("zqr_last_real_price",String(livePriceUsd));
    updateUI();
   }
  }catch(e){
