@@ -15,9 +15,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 .gold-gradient{background:linear-gradient(90deg,#22d3ee,#a855f7,#22d3ee);color:white;font-weight:900;box-shadow:0 5px 25px rgba(168,85,247,.5)}
 .blue-btn{background:linear-gradient(90deg,#7c3aed,#06b6d4);color:white;font-weight:bold}
 .green-glow{color:#00FF88;text-shadow:0 0 15px #00FF88}
-.coin{width:180px;height:180px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(34,211,238,.7),0 0 80px rgba(168,85,247,.5);border:4px solid #22d3ee;animation:roll 3s linear infinite;background:#020617}
+.coin{width:180px;height:180px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(34,211,238,.7),0 0 80px rgba(168,85,247,.5);border:4px solid #22d3ee;animation:pulse 1.8s ease-in-out infinite;background:#020617}
 .coin img{width:100%;height:100%;object-fit:cover}
-@keyframes roll{0%{transform:rotateY(0deg)}100%{transform:rotateY(360deg)}}
 .nav-active{color:#22d3ee!important}
 #ton-connect button{width:100%!important}
 button:disabled{opacity:.65;cursor:not-allowed}
@@ -29,7 +28,7 @@ button:disabled{opacity:.65;cursor:not-allowed}
 .timeline-dot.owned{background:#00FF88;box-shadow:0 0 10px #00FF88}
 .timeline-dot.active{background:#22d3ee;box-shadow:0 0 15px #22d3ee;animation:pulse 1.5s infinite}
 .timeline-dot.locked{background:#ffffff30}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 .timeline-card{flex:1;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:14px}
 .timeline-card.owned{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25)}
 .timeline-card.active{background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5)}
@@ -37,210 +36,1180 @@ button:disabled{opacity:.65;cursor:not-allowed}
 </style>
 </head>
 <body>
+
 <div id="mine-page" class="p-4 max-w-md mx-auto relative z-10">
 <div class="flex justify-between items-center mb-3"><div><p id="userName" class="font-bold text-lg">Miner</p><div class="flex gap-2 mt-1"><span class="bg-white text-black text-xs px-3 py-1 rounded-full font-bold">Lvl <span id="lvl">1</span></span><span id="joinStatusBadge" class="bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500">● NOT JOINED</span></div><button onclick="toggleSound()" id="soundBtn" class="text-[10px] mt-2 bg-white/10 px-2 py-1 rounded">🔊 Sound ON</button></div><div class="glass px-3 py-2 text-xs min-w-[155px] text-center"><p id="walletShort" class="text-[11px]">Connect Wallet</p><div id="ton-connect" class="mt-2"></div><button onclick="connectWalletManual()" class="w-full mt-2 bg-cyan-500 text-black py-2 rounded-lg text-[11px] font-bold">CONNECT WALLET</button><button onclick="disconnectWallet()" class="w-full mt-2 bg-red-500/20 border border-red-500/40 text-red-300 py-1.5 rounded-lg text-[11px] font-bold">Disconnect</button></div></div>
+
 <div id="verificationCard" class="glass p-4 mt-4 border border-cyan-500/40"><div class="flex items-center justify-between"><div><p class="text-sm font-bold">🔐 Verification</p><p id="verificationStatus" class="text-xs text-cyan-300 mt-1">Not verified</p></div><div id="verificationIcon" class="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-xl">🔐</div></div><p class="text-xs text-white/60 mt-3">Verify with <b class="text-cyan-300">0.1 TON</b> to unlock withdrawals.</p><button id="verifyBtn" onclick="verifyAccount()" class="w-full gold-gradient py-3 rounded-xl mt-4 text-sm">VERIFY WITH 0.1 TON</button></div>
+
 <div class="text-center mt-5"><p class="text-xs tracking-[0.3em] text-white/50">MINING (Auto Only)</p><h1 class="text-3xl font-bold mt-1"><span id="miningBalance">0.0000</span> <span class="text-cyan-300 text-xl">ZQR</span></h1><p class="text-[11px] text-white/40 mt-1">Auto-mining active • No tapping needed</p><div class="glass mt-3 py-2 px-4 inline-block text-xs">APP POOL BALANCE: <b id="pool" class="text-[#00FF88]">0.0000</b> ZQR <span id="poolUsd" class="text-[#00FF88] text-[10px] font-bold"></span></div><p class="text-[11px] mt-2 font-bold">ZYQORIX Price: <span id="livePrice" class="text-[#00FF88]">$0.00000000 USDT • LIVE • STON.fi</span></p><p class="text-xs mt-1"><a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-cyan-300 underline text-[11px]">View Pool on STON.fi →</a> • <span class="text-white/40 text-[11px]">Liquidity Live</span></p><p class="text-xs mt-1 text-white/60">Mined Today: <span id="minedTodayShow" class="text-cyan-300 font-bold">0.00</span> / <span id="dailyCapShow" class="font-bold">3.00</span> ZQR</p><div class="w-full bg-white/10 rounded-full h-2 mt-2 overflow-hidden"><div id="dailyProgressBar" class="bg-cyan-400 h-2 rounded-full" style="width:0%"></div></div><p class="text-2xl font-bold green-glow mt-3" id="miningPlus">+0.0000 /sec</p><div class="flex justify-center mt-6"><div class="coin"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png"></div></div><button id="claimBtn" onclick="claimMining()" class="w-full blue-btn py-4 rounded-xl mt-8 text-lg">CLAIM TO POOL</button><p class="text-xs text-white/40 mt-3">Power: <span id="power">3.02</span> TH/s | <span id="rateShow">0.00000</span>/sec | <span id="dayRate">3.00/day</span></p></div></div>
+
 <div id="tasks-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-2xl font-bold text-center">Earn Rewards</h1>
-<div class="glass p-4 mt-4 border border-cyan-400/40 bg-cyan-500/10"><div class="flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">📅</div><div><p class="text-sm font-bold">Daily Check-In</p><p class="text-xs text-white/50">Come back every day!</p><p class="text-[11px] text-cyan-300 mt-1 font-bold" id="dailyCheckStreak">Day 1 • +1 ZQR</p></div></div><button id="dailyCheckBtn" onclick="claimDailyCheck()" class="bg-cyan-400 text-black px-4 py-2 rounded-full text-xs font-bold">Claim</button></div><div id="dailyCheckDays" class="flex justify-between mt-4 gap-1"></div><p id="dailyCheckTimer" class="text-[10px] text-white/40 mt-2 text-center">Ready!</p></div>
+
+<div class="glass p-4 mt-4 border border-cyan-400/40 bg-cyan-500/10"><div class="flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">📅</div><div><p class="text-sm font-bold">Daily Check-In</p><p class="text-xs text-white/50">Claim every 24 hours!</p><p class="text-[11px] text-cyan-300 mt-1 font-bold" id="dailyCheckStreak">Day 1 • +5 ZQR</p></div></div><button id="dailyCheckBtn" onclick="claimDailyCheck()" class="bg-cyan-400 text-black px-4 py-2 rounded-full text-xs font-bold">Claim +5</button></div><div id="dailyCheckDays" class="flex justify-between mt-4 gap-1"></div><p id="dailyCheckTimer" class="text-[10px] text-white/40 mt-2 text-center">Ready!</p></div>
+
 <div class="mt-4 space-y-3">
-<div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💬</div><div><p class="text-sm font-bold">Join ZYQORIX Channel *</p><p class="text-xs text-white/50">+50 ZQR • Once • Required</p></div></div><button id="taskBtn1" onclick="doTask(50,'join_channel','https://t.me/ZYQORIX')" class="bg-white text-black px-4 py-2 rounded-full text-xs font-bold">Join +50</button></div>
-<div class="glass p-4 flex justify-between items-center border border-pink-400/40 bg-pink-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center">❤️</div><div><p class="text-sm font-bold">React to Latest Post</p><p class="text-xs text-white/50">+5 ZQR • Every 6hrs</p><p class="text-[10px] text-pink-300 mt-1" id="reactTimer">Ready!</p></div></div><button id="reactBtn" onclick="doReactTask()" class="bg-pink-400 text-black px-4 py-2 rounded-full text-xs font-bold">React</button></div>
-<div class="glass p-4 flex justify-between items-center border border-purple-400/40 bg-purple-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Add Link to Your Bio</p><p class="text-xs text-white/50">+5 ZQR • Every 24hrs</p><p class="text-[10px] text-purple-300 mt-1">Add https://t.me/ZYQORIX_BOT to bio</p><p class="text-[10px] text-purple-300" id="bioTimer">Ready!</p></div></div><button id="bioBtn" onclick="doBioTask()" class="bg-purple-400 text-black px-4 py-2 rounded-full text-xs font-bold">Add Bio</button></div>
+<div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💬</div><div><p class="text-sm font-bold">Join ZYQORIX Channel *</p><p class="text-xs text-white/50">+5 ZQR • Once • Required</p></div></div><button id="taskBtn1" onclick="doTask(5,'join_channel','https://t.me/ZYQORIX')" class="bg-white text-black px-4 py-2 rounded-full text-xs font-bold">Join +5</button></div>
+
+<div class="glass p-4 flex justify-between items-center border border-pink-400/40 bg-pink-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center">❤️</div><div><p class="text-sm font-bold">React to Latest Post</p><p class="text-xs text-white/50">+5 ZQR • Every 12hrs</p><p class="text-[10px] text-pink-300 mt-1" id="reactTimer">Ready!</p></div></div><button id="reactBtn" onclick="doReactTask()" class="bg-pink-400 text-black px-4 py-2 rounded-full text-xs font-bold">React</button></div>
+
+<div class="glass p-4 flex justify-between items-center border border-purple-400/40 bg-purple-500/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Add Link to Your Bio</p><p class="text-xs text-white/50">+5 ZQR • Every 72hrs</p><p class="text-[10px] text-purple-300 mt-1">Add https://t.me/ZYQORIX_BOT to bio</p><p class="text-[10px] text-purple-300" id="bioTimer">Ready!</p></div></div><button id="bioBtn" onclick="doBioTask()" class="bg-purple-400 text-black px-4 py-2 rounded-full text-xs font-bold">Add Bio</button></div>
 </div></div>
+
 <div id="miners-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h2 class="text-center text-white/50 text-xs tracking-widest mb-3">MINERS LVL 1 - 1000 • STAIRCASE</h2><div class="glass p-3 mb-4 flex justify-between text-xs"><p>Your Level: <b id="myLevelShow" class="text-cyan-300">1</b> / 1000</p><p>Speed: <b id="mySpeedShow" class="text-green-400">3.00 /day</b></p></div><div class="timeline-wrap"><div class="timeline-line"></div><div id="minersGrid"></div></div><button onclick="loadMoreMiners()" class="w-full glass py-3 rounded-xl mt-4 text-xs">Load More ▼</button></div>
-<div id="friends-page" class="hidden p-4 max-w-md mx-auto relative z-10"><div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Your Invite Link</p><p id="refLink" class="text-[10px] text-white/50 break-all w-48"></p></div></div><button onclick="copyRef()" class="blue-btn px-4 py-2 rounded-full text-xs">Copy</button></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">👥</div><div><p class="text-sm font-bold">Your Referrals</p><p class="text-xs text-white/50"><span id="refCount">0</span> total</p></div></div></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🎁</div><div><p class="text-sm font-bold">Referral Reward</p><p id="refRewardText" class="text-xs text-white/50">0 available</p><p id="refEarned" class="text-[10px] text-white/30 mt-1">0 ZQR</p></div></div><button onclick="claimReferral()" id="claimReferralBtn" class="bg-white/20 px-4 py-2 rounded-full text-xs">Claim</button></div><div class="glass p-4 flex justify-between items-center mt-3 border border-blue-400/40 bg-blue-600/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💼</div><div><p class="text-sm font-bold">Team Wallet (5%)</p><p id="teamWalletText" class="text-xs text-blue-200">0.00 ZQR available</p></div></div><button onclick="claimTeamWallet()" id="claimTeamBtn" class="blue-btn px-4 py-2 rounded-full text-xs">Claim to Pool</button></div><div id="refList" class="mt-6 space-y-2"></div></div>
-<div id="profile-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-xl font-bold text-center">Profile</h1><div class="vault-card mt-4"><p class="text-[10px] tracking-widest opacity-80">COMBINED HOLDING • DECIDES YOUR LEVEL</p><div class="flex items-center gap-2 mt-2"><div class="w-8 h-8 rounded-full overflow-hidden bg-black/30"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png" class="w-full h-full object-cover"></div><h1 class="text-3xl font-black tracking-tight"><span id="combinedBalance">0.00</span></h1></div><div class="flex items-center gap-2 mt-1"><span class="bg-black/30 px-3 py-1 rounded-full text-xs font-bold">≈ $<span id="combinedUsd">0.00</span></span></div><p class="text-xs mt-2 opacity-90">Level <span id="combinedLevel">1</span> (MAX 1000)</p><div class="glass p-3 mt-3 flex justify-between"><div><p class="text-[10px] opacity-70">In-app Pool</p><p class="text-lg font-bold"><span id="balProfile">0</span></p></div><div><p class="text-[10px] opacity-70">On-chain Real</p><p class="text-lg font-bold"><span id="balProfileOnchain">0.00</span></p></div></div></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-12 h-12 bg-cyan-400 rounded-2xl flex items-center justify-center text-xl">💼</div><div><p class="font-bold text-sm">Connected Wallet</p><p id="walletDisplayProfile" class="text-xs text-white/50">Not connected</p></div></div><button onclick="disconnectWallet()" class="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-2 rounded-full text-xs font-bold">Disconnect</button></div><div class="glass p-4 mt-3 flex justify-between"><div><p class="text-sm font-bold">Mining (Unclaimed)</p></div><p class="text-blue-300 font-bold"><span id="miningProfile">0</span> ZQR</p></div><div class="glass p-4 mt-3"><p class="text-sm font-bold">Withdraw History</p><div id="withdrawHistory" class="mt-2"><p class="text-white/30 text-xs text-center">Loading...</p></div></div><div class="glass p-4 mt-4"><p class="text-sm font-bold">Withdraw</p><p class="text-xs text-white/60 mt-1">Minimum: <b class="text-cyan-300">2000 ZQR</b> • Maximum: <b class="text-cyan-300">2000 ZQR</b> • Fee: <b>70 ZQR</b></p><p class="text-[11px] text-yellow-300 mt-1">You must withdraw exactly 2000 ZQR • 1 per 24hrs</p><p class="text-xs text-yellow-300 mt-1 font-bold" id="withdrawCooldownText">✅ Withdrawal Available</p><p class="text-xs text-blue-300 mt-1">You will receive: <b id="receiveAmt">0.00</b> ZQR</p><input id="withdrawAmt" oninput="calcReceive()" type="number" min="2000" max="2000" placeholder="Enter 2000" class="w-full mt-2 p-3 rounded-xl bg-black/40 border border-white/10 text-white"><button onclick="withdraw()" id="withdrawBtn" class="w-full bg-white text-black mt-3 py-3 rounded-xl font-bold">Request Withdrawal</button><p class="text-[10px] text-white/40 mt-2 text-center">Strict: 1 per 24hrs. Exactly 2000 ZQR. Fee 70 ZQR. Verify 0.1 TON first.</p></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">👤</div><div><p class="text-sm font-bold">User ID</p><p id="userIdShow" class="text-xs text-white/50"></p></div></div></div><div class="glass p-4 mt-3 text-[11px]"><p class="font-bold mb-1">Token Info</p><p class="text-white/50 break-all">Contract: EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_</p><a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-cyan-300 underline">Trade on STON.fi</a></div></div>
+
+<div id="friends-page" class="hidden p-4 max-w-md mx-auto relative z-10"><div class="glass p-4 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🔗</div><div><p class="text-sm font-bold">Your Invite Link</p><p id="refLink" class="text-[10px] text-white/50 break-all w-48"></p></div></div><button onclick="copyRef()" class="blue-btn px-4 py-2 rounded-full text-xs">Copy</button></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">👥</div><div><p class="text-sm font-bold">Your Referrals</p><p class="text-xs text-white/50"><span id="refCount">0</span> total</p></div></div></div><div class="glass p-4 flex justify-between items-center mt-3"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">🎁</div><div><p class="text-sm font-bold">Referral Reward</p><p id="refRewardText" class="text-xs text-white/50">Pending qualification</p><p id="refEarned" class="text-[10px] text-white/30 mt-1">0 ZQR</p></div></div><button onclick="claimReferral()" id="claimReferralBtn" class="bg-white/20 px-4 py-2 rounded-full text-xs">Claim</button></div><div class="glass p-4 flex justify-between items-center mt-3 border border-blue-400/40 bg-blue-600/10"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">💼</div><div><p class="text-sm font-bold">Team Wallet (5%)</p><p id="teamWalletText" class="text-xs text-blue-200">Backend-calculated rewards</p></div></div><button onclick="claimTeamWallet()" id="claimTeamBtn" class="blue-btn px-4 py-2 rounded-full text-xs">Claim to Pool</button></div><div id="refList" class="mt-6 space-y-2"></div></div>
+
+<div id="profile-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-xl font-bold text-center">Profile</h1><div class="vault-card mt-4"><p class="text-[10px] tracking-widest opacity-80">COMBINED HOLDING • DECIDES YOUR LEVEL</p><div class="flex items-center gap-2 mt-2"><div class="w-8 h-8 rounded-full overflow-hidden bg-black/30"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png" class="w-full h-full object-cover"></div><h1 class="text-3xl font-black tracking-tight"><span id="combinedBalance">0.00</span></h1></div><div class="flex items-center gap-2 mt-1"><span class="bg-black/30 px-3 py-1 rounded-full text-xs font-bold">≈ $<span id="combinedUsd">0.00</span></span></div><p class="text-xs mt-2 opacity-90">Level <span id="combinedLevel">1</span> (MAX 1000)</p><div class="glass p-3 mt-3 flex justify-between"><div><p class="text-[10px] opacity-70">In-app Pool</p><p class="text-lg font-bold"><span id="balProfile">0</span></p></div><div><p class="text-[10px] opacity-70">On-chain Real</p><p class="text-lg font-bold"><span id="balProfileOnchain">0.00</span></p></div></div></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-12 h-12 bg-cyan-400 rounded-2xl flex items-center justify-center text-xl">💼</div><div><p class="font-bold text-sm">Connected Wallet</p><p id="walletDisplayProfile" class="text-xs text-white/50">Not connected</p></div></div><button onclick="disconnectWallet()" class="bg-red-500/20 border border-red-500/40 text-red-300 px-3 py-2 rounded-full text-xs font-bold">Disconnect</button></div><div class="glass p-4 mt-3 flex justify-between"><div><p class="text-sm font-bold">Mining (Unclaimed)</p></div><p class="text-blue-300 font-bold"><span id="miningProfile">0</span> ZQR</p></div><div class="glass p-4 mt-3"><p class="text-sm font-bold">Withdraw History</p><div id="withdrawHistory" class="mt-2"><p class="text-white/30 text-xs text-center">Loading...</p></div></div><div class="glass p-4 mt-4"><p class="text-sm font-bold">Withdraw</p><p class="text-xs text-white/60 mt-1">Minimum: <b class="text-cyan-300">2000 ZQR</b> • Maximum: <b class="text-cyan-300">2000 ZQR</b> • Fee: <b>70 ZQR</b></p><p class="text-[11px] text-yellow-300 mt-1">You must withdraw exactly 2000 ZQR • 1 per 24hrs • Wallet must hold at least 2000 ZQR on-chain</p><p class="text-xs text-yellow-300 mt-1 font-bold" id="withdrawCooldownText">✅ Withdrawal Available</p><p class="text-xs text-blue-300 mt-1">You will receive: <b id="receiveAmt">0.00</b> ZQR</p><input id="withdrawAmt" oninput="calcReceive()" type="number" min="2000" max="2000" placeholder="Enter 2000" class="w-full mt-2 p-3 rounded-xl bg-black/40 border border-white/10 text-white"><button onclick="withdraw()" id="withdrawBtn" class="w-full bg-white text-black mt-3 py-3 rounded-xl font-bold">Request Withdrawal</button><p class="text-[10px] text-white/40 mt-2 text-center">Strict: 1 per 24hrs. Exactly 2000 ZQR. Fee 70 ZQR. Verify 0.1 TON first.</p></div><div class="glass p-4 mt-3 flex justify-between items-center"><div class="flex gap-3 items-center"><div class="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">👤</div><div><p class="text-sm font-bold">User ID</p><p id="userIdShow" class="text-xs text-white/50"></p></div></div></div><div class="glass p-4 mt-3 text-[11px]"><p class="font-bold mb-1">Token Info</p><p class="text-white/50 break-all">Contract: EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_</p><a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-cyan-300 underline">Trade on STON.fi</a></div></div>
+
 <div class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 flex justify-around p-2 max-w-md mx-auto z-50"><button onclick="showPage('mine')" id="nav-mine" class="nav-active flex flex-col items-center"><span class="text-xl">⛏️</span><span class="text-[10px]">Mine</span></button><button onclick="showPage('tasks')" id="nav-tasks" class="flex flex-col items-center opacity-60"><span class="text-xl">📝</span><span class="text-[10px]">Tasks</span></button><button onclick="showPage('miners')" id="nav-miners" class="flex flex-col items-center opacity-60"><span class="text-xl">⚡</span><span class="text-[10px]">Miners</span></button><button onclick="showPage('friends')" id="nav-friends" class="flex flex-col items-center opacity-60"><span class="text-xl">👥</span><span class="text-[10px]">Friends</span></button><button onclick="showPage('profile')" id="nav-profile" class="flex flex-col items-center opacity-60"><span class="text-xl">👤</span><span class="text-[10px]">Profile</span></button></div>
 
-<!-- ISOLATED MINING - SEPARATE BLOCK, CANNOT BE KILLED BY OTHER CODE -->
+<!-- ISOLATED MINING -->
 <script>
-window.__isoMining = 0;
-window.__isoMinedToday = 0;
+window.__isoMining=0;
+window.__isoMinedToday=0;
 setInterval(function(){
   try{
-    window.__isoMining = window.__isoMining + 0.0000347;
-    window.__isoMinedToday = window.__isoMinedToday + 0.0000347;
-    var mb = document.getElementById("miningBalance");
-    if(mb) mb.innerText = window.__isoMining.toFixed(5);
-    var mp = document.getElementById("miningPlus");
-    if(mp) mp.innerText = "+0.000035 /sec";
-    var rs = document.getElementById("rateShow");
-    if(rs) rs.innerText = "0.000035";
-    var mt = document.getElementById("minedTodayShow");
-    if(mt) mt.innerText = window.__isoMinedToday.toFixed(2);
-    var mprof = document.getElementById("miningProfile");
-    if(mprof) mprof.innerText = window.__isoMining.toFixed(5);
-    var pw = document.getElementById("power");
-    if(pw) pw.innerText = "3.08";
+    window.__isoMining+=0.0000347;
+    window.__isoMinedToday+=0.0000347;
+    var mb=document.getElementById("miningBalance");
+    if(mb)mb.innerText=window.__isoMining.toFixed(5);
+    var mp=document.getElementById("miningPlus");
+    if(mp)mp.innerText="+0.000035 /sec";
+    var rs=document.getElementById("rateShow");
+    if(rs)rs.innerText="0.000035";
+    var mt=document.getElementById("minedTodayShow");
+    if(mt)mt.innerText=window.__isoMinedToday.toFixed(2);
+    var mprof=document.getElementById("miningProfile");
+    if(mprof)mprof.innerText=window.__isoMining.toFixed(5);
+    var pw=document.getElementById("power");
+    if(pw)pw.innerText="3.08";
   }catch(e){}
-}, 1000);
+},1000);
 </script>
 
 <script>
 "use strict";
+
 const SUPABASE_URL="https://fqouhzxwmjfcynyxqqsz.supabase.co";
 const SUPABASE_KEY="sb_publishable_ENIIXoVDH-EQvxhhguDjEg_aGU8msbu";
 const ZYQORIX_TOKEN_ADDRESS="EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_";
 const ZYQORIX_POOL_ADDRESS="EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT";
 const OWNER_WALLET="UQCbXnjJ-vVo3oGtovId9TRs_H-O3CO9irjgazyk8F39_XOu";
+
 let supabaseClient=null;
-try{ if(window.supabase && window.supabase.createClient){ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY); } }catch(e){ supabaseClient=null; }
+try{
+  if(window.supabase&&window.supabase.createClient){
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  }
+}catch(e){supabaseClient=null;}
+
 const VERIFICATION_NANOTON="100000000";
-const WITHDRAW_FEE=70; const WITHDRAW_COOLDOWN_MS=24*60*60*1000;
-const MAX_BALANCE=5000000000; const MAX_MINING_PENDING=5000;
-let tg=null; try{ tg=window.Telegram?.WebApp; if(tg){tg.ready();tg.expand();} }catch(e){}
-let tonConnectUI=null; let connectedWalletAddress="";
+const WITHDRAW_FEE=70;
+const WITHDRAW_COOLDOWN_MS=24*60*60*1000;
+const MAX_BALANCE=5000000000;
+const MAX_MINING_PENDING=5000;
+
+let tg=null;
+try{tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand();}}catch(e){}
+
+let tonConnectUI=null;
+let connectedWalletAddress="";
+
 function initTonConnect(){
   try{
-    if(!window.TON_CONNECT_UI?.TonConnectUI) return;
-    if(tonConnectUI) return;
-    tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",buttonRootId:"ton-connect"});
+    if(!window.TON_CONNECT_UI?.TonConnectUI||tonConnectUI)return;
+    tonConnectUI=new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",
+      buttonRootId:"ton-connect"
+    });
     tonConnectUI.onStatusChange(function(w){
       try{
-      if(w?.account?.address){connectedWalletAddress=w.account.address;document.getElementById("walletShort").innerText=w.account.address.slice(0,6)+"..."+w.account.address.slice(-4);let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText=w.account.address.slice(0,5)+"..."+w.account.address.slice(-3);localStorage.setItem("v_wallet",connectedWalletAddress);fetchProfileOnchain();}
-      else{connectedWalletAddress="";document.getElementById("walletShort").innerText="Connect Wallet";}
-      updateVerificationUI();updateWithdrawUI();
+        if(w?.account?.address){
+          connectedWalletAddress=w.account.address;
+          document.getElementById("walletShort").innerText=w.account.address.slice(0,6)+"..."+w.account.address.slice(-4);
+          let wp=document.getElementById("walletDisplayProfile");
+          if(wp)wp.innerText=w.account.address.slice(0,5)+"..."+w.account.address.slice(-3);
+          localStorage.setItem("v_wallet",connectedWalletAddress);
+          fetchProfileOnchain();
+        }else{
+          connectedWalletAddress="";
+          document.getElementById("walletShort").innerText="Connect Wallet";
+        }
+        updateVerificationUI();
+        updateWithdrawUI();
       }catch(e){}
     });
-    if(tonConnectUI.account?.address){connectedWalletAddress=tonConnectUI.account.address;}
+    if(tonConnectUI.account?.address)connectedWalletAddress=tonConnectUI.account.address;
   }catch(e){}
 }
+
 async function connectWalletManual(){
-  if(!tonConnectUI){initTonConnect();}
+  if(!tonConnectUI)initTonConnect();
   if(!tonConnectUI){alert("Wallet system still loading, wait 3 sec and try again");return;}
-  try{await tonConnectUI.openModal();}catch(e){alert("Could not open wallet. Make sure you open bot inside Telegram app, not browser.");}
+  try{await tonConnectUI.openModal();}
+  catch(e){alert("Could not open wallet. Make sure you open bot inside Telegram app, not browser.");}
 }
-async function disconnectWallet(){try{if(tonConnectUI) await tonConnectUI.disconnect();}catch(e){} connectedWalletAddress=""; localStorage.removeItem("v_wallet"); document.getElementById("walletShort").innerText="Connect Wallet"; let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText="Not connected"; alert("Wallet disconnected");}
-let soundOn=localStorage.getItem("zyq_sound")!=="off"; let audioCtx=null;
-function playZyqorixSound(){if(!soundOn) return; try{if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); let t=audioCtx.currentTime; [523.25,783.99,1046.5].forEach((f,i)=>{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.12,t+i*0.08);g.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.25);o.connect(g);g.connect(audioCtx.destination);o.start(t+i*0.08);o.stop(t+i*0.08+0.3);});}catch(e){}}
-function toggleSound(){soundOn=!soundOn; localStorage.setItem("zyq_sound",soundOn?"on":"off"); document.getElementById("soundBtn").innerText=soundOn?"🔊 Sound ON":"🔇 Sound OFF"; if(soundOn) playZyqorixSound();}
-const urlParams=new URLSearchParams(window.location.search); const telegramUserId=tg?.initDataUnsafe?.user?.id?.toString()||"";
-let tgId=localStorage.getItem("v_tgId")||telegramUserId||("id_"+Math.floor(Math.random()*10000000)); localStorage.setItem("v_tgId",tgId);
-let tgName=tg?.initDataUnsafe?.user?.first_name||tg?.initDataUnsafe?.user?.username||localStorage.getItem("v_tgName")||"Miner"; if(tgName!=="Miner")localStorage.setItem("v_tgName",tgName);
-try{document.getElementById("userName").innerText=tgName==="Miner"?"Miner":tgName+"'s Miner"; document.getElementById("refLink").innerText="https://t.me/ZYQORIX_BOT?start="+tgId; document.getElementById("userIdShow").innerText=tgId;}catch(e){}
-let poolBalance=Number(localStorage.getItem("v_balance")||0)||0, miningPending=Number(localStorage.getItem("v_mining_pending")||0)||0; if(miningPending>MAX_MINING_PENDING||miningPending<0) miningPending=0;
+
+async function disconnectWallet(){
+  try{if(tonConnectUI)await tonConnectUI.disconnect();}catch(e){}
+  connectedWalletAddress="";
+  localStorage.removeItem("v_wallet");
+  document.getElementById("walletShort").innerText="Connect Wallet";
+  let wp=document.getElementById("walletDisplayProfile");
+  if(wp)wp.innerText="Not connected";
+  updateVerificationUI();
+  updateWithdrawUI();
+  alert("Wallet disconnected");
+}
+
+let soundOn=localStorage.getItem("zyq_sound")!=="off";
+let audioCtx=null;
+
+function playZyqorixSound(){
+  if(!soundOn)return;
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    let t=audioCtx.currentTime;
+    [523.25,783.99,1046.5].forEach((f,i)=>{
+      let o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type="sine";
+      o.frequency.value=f;
+      g.gain.setValueAtTime(0.12,t+i*0.08);
+      g.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.25);
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      o.start(t+i*0.08);
+      o.stop(t+i*0.08+0.3);
+    });
+  }catch(e){}
+}
+
+function toggleSound(){
+  soundOn=!soundOn;
+  localStorage.setItem("zyq_sound",soundOn?"on":"off");
+  document.getElementById("soundBtn").innerText=soundOn?"🔊 Sound ON":"🔇 Sound OFF";
+  if(soundOn)playZyqorixSound();
+}
+
+const urlParams=new URLSearchParams(window.location.search);
+const telegramUserId=tg?.initDataUnsafe?.user?.id?.toString()||"";
+let tgId=localStorage.getItem("v_tgId")||telegramUserId||("id_"+Math.floor(Math.random()*10000000));
+localStorage.setItem("v_tgId",tgId);
+
+let tgName=tg?.initDataUnsafe?.user?.first_name||tg?.initDataUnsafe?.user?.username||localStorage.getItem("v_tgName")||"Miner";
+if(tgName!=="Miner")localStorage.setItem("v_tgName",tgName);
+
+try{
+  document.getElementById("userName").innerText=tgName==="Miner"?"Miner":tgName+"'s Miner";
+  document.getElementById("refLink").innerText="https://t.me/ZYQORIX_BOT?start="+tgId;
+  document.getElementById("userIdShow").innerText=tgId;
+}catch(e){}
+
+let poolBalance=Number(localStorage.getItem("v_balance")||0)||0;
+let miningPending=Number(localStorage.getItem("v_mining_pending")||0)||0;
+if(miningPending>MAX_MINING_PENDING||miningPending<0)miningPending=0;
+
 let currentMinerLevel=Math.max(1,Math.min(1000,Math.floor(Number(localStorage.getItem("v_miner_level")||1))));
-let livePriceUsd=parseFloat(localStorage.getItem("v_last_real_price")||"0")||0.00001409; let onChainBalance=Number(localStorage.getItem("v_onchain_cached")||0)||0;
-function safeNum(v,f=0){if(v===null||v===undefined||String(v).trim()==="")return f;const n=Number(v);return Number.isFinite(n)?n:f;}
-function readArray(k){try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[];}catch(_){return[];}}
-const refKey="refs_of_"+tgId; const refClaimedKey="v_ref_claimed_"+tgId; const teamWalletKey="v_team_wallet_"+tgId; const teamClaimedKey="v_team_claimed_"+tgId;
-let refClaimed=Math.max(0,safeNum(localStorage.getItem(refClaimedKey),0)); let teamWallet=safeNum(localStorage.getItem(teamWalletKey),0); let teamClaimed=safeNum(localStorage.getItem(teamClaimedKey),0);
-let visibleLevels=20; let isClaiming=false;
-function getMiningRatePerDay(lvl){return 3+(lvl-1)*0.2121212121;} function getVantaPerSec(lvl){return getMiningRatePerDay(lvl)/86400;}
-function getCostForLevel(lvl){if(lvl<=1)return 0; if(lvl==2)return 100; if(lvl==3)return 125; if(lvl==4)return 150; if(lvl==5)return 200; if(lvl==6)return 250; if(lvl==7)return 300; if(lvl==8)return 350; if(lvl==9)return 400; if(lvl==10)return 500; return 500+(lvl-10)*50;}
-function getTotalNeededForLevel(t){let total=0; for(let i=2;i<=t;i++) total+=getCostForLevel(i); return total;}
-function getCorrectLevelForBalance(base){if(base<100)return 1; let lvl=1; for(let i=2;i<=1000;i++){if(base>=getTotalNeededForLevel(i)) lvl=i; else break;} return lvl;}
-function autoJumpLevel(){const combined=poolBalance+onChainBalance; const correct=getCorrectLevelForBalance(combined>0?combined:poolBalance); if(correct>currentMinerLevel){currentMinerLevel=correct; localStorage.setItem("v_miner_level",String(currentMinerLevel));}}
-function getDailyCap(){return getMiningRatePerDay(currentMinerLevel);} function getTodayKey(){const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-function getMinedToday(){return safeNum(localStorage.getItem("v_mined_today_"+tgId+"_"+getTodayKey()),0);} function addMinedToday(a){let k="v_mined_today_"+tgId+"_"+getTodayKey(); let cur=getMinedToday()+a; localStorage.setItem(k,String(cur)); return cur;}
-function updateDailyUI(){try{let cap=getDailyCap(), mined=getMinedToday(); document.getElementById("minedTodayShow").innerText=mined.toFixed(2); document.getElementById("dailyCapShow").innerText=cap.toFixed(2); document.getElementById("dailyProgressBar").style.width=Math.min(100,(mined/cap)*100)+"%";}catch(e){}}
-function applyOfflineMining(){let last=safeNum(localStorage.getItem("v_last_mine_time"),0); if(last>0){let diff=Math.floor((Date.now()-last)/1000); if(diff>0&&diff<86400){let remaining=getDailyCap()-getMinedToday(); if(remaining>0){let earn=getVantaPerSec(currentMinerLevel)*diff; if(earn>remaining) earn=remaining; if(earn>0){miningPending+=earn; addMinedToday(earn); localStorage.setItem("v_mining_pending",String(miningPending));}}} localStorage.setItem("v_last_mine_time",String(Date.now()));}
-const DAILY_REWARDS=[1,3,5,7,9,11,15]; function getDateStr(o=0){let d=new Date(); d.setDate(d.getDate()+o); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
-function getDailyCheckData(){return {lastDate:localStorage.getItem("v_daily_last")||"",streak:Number(localStorage.getItem("v_daily_streak")||"0")};}
-function updateDailyCheckUI(){try{let {lastDate,streak}=getDailyCheckData(); let today=getDateStr(0), yesterday=getDateStr(-1); let currentStreak=streak, canClaim=true; if(lastDate===today) canClaim=false; else if(lastDate!==yesterday&&lastDate!==""){currentStreak=0; localStorage.setItem("v_daily_streak","0");} let nextDay=lastDate===today?currentStreak:currentStreak+1; if(nextDay>7) nextDay=1; if(!lastDate) nextDay=1; let nextReward=DAILY_REWARDS[nextDay-1]; let streakEl=document.getElementById("dailyCheckStreak"), btn=document.getElementById("dailyCheckBtn"), timerEl=document.getElementById("dailyCheckTimer"), daysEl=document.getElementById("dailyCheckDays"); if(streakEl) streakEl.innerText=lastDate===today?`Day ${currentStreak} Claimed ✅ • Come back tomorrow`:`Day ${nextDay} • +${nextReward} ZQR`; if(btn){btn.innerText=!canClaim?"✅ Claimed":`Claim +${nextReward}`; btn.disabled=!canClaim;} if(timerEl) timerEl.innerText=lastDate===today?"Come back tomorrow":"Claim every day. Miss one day = reset!"; if(daysEl){daysEl.innerHTML=""; DAILY_REWARDS.forEach((r,i)=>{let dayNum=i+1, bg="bg-white/10 text-white/50"; if(lastDate===today&&dayNum<=currentStreak) bg="bg-green-500 text-black font-bold"; else if(lastDate!==today&&dayNum===nextDay) bg="bg-cyan-400 text-black font-bold animate-pulse"; let div=document.createElement("div"); div.className=`${bg} rounded-xl py-2 text-center text-[10px] flex-1`; div.innerHTML=`Day ${dayNum}<br>+${r}`; daysEl.appendChild(div);});}}catch(e){}}
-function claimDailyCheck(){let {lastDate,streak}=getDailyCheckData(); let today=getDateStr(0), yesterday=getDateStr(-1); if(lastDate===today){alert("Already claimed today");return;} let newStreak=lastDate===yesterday?streak+1:1; if(newStreak>7) newStreak=1; let reward=DAILY_REWARDS[newStreak-1]; poolBalance+=reward; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_daily_last",today); localStorage.setItem("v_daily_streak",String(newStreak)); playZyqorixSound(); updateDailyCheckUI(); updateUI(); syncToSupabase(); alert(`Daily Check Day ${newStreak} Claimed! +${reward} ZQR 🎉`);}
-setInterval(updateDailyCheckUI,60000);
+let livePriceUsd=parseFloat(localStorage.getItem("v_last_real_price")||"0")||0.00001409;
+let onChainBalance=Number(localStorage.getItem("v_onchain_cached")||0)||0;
+
+function safeNum(v,f=0){
+  if(v===null||v===undefined||String(v).trim()==="")return f;
+  const n=Number(v);
+  return Number.isFinite(n)?n:f;
+}
+
+function readArray(k){
+  try{
+    const v=JSON.parse(localStorage.getItem(k)||"[]");
+    return Array.isArray(v)?v:[];
+  }catch(_){return[];}
+}
+
+const refKey="refs_of_"+tgId;
+const refClaimedKey="v_ref_claimed_"+tgId;
+const teamWalletKey="v_team_wallet_"+tgId;
+const teamClaimedKey="v_team_claimed_"+tgId;
+
+let refClaimed=Math.max(0,safeNum(localStorage.getItem(refClaimedKey),0));
+let teamWallet=safeNum(localStorage.getItem(teamWalletKey),0);
+let teamClaimed=safeNum(localStorage.getItem(teamClaimedKey),0);
+
+let visibleLevels=20;
+let isClaiming=false;
+
+function getMiningRatePerDay(lvl){return 3+(lvl-1)*0.2121212121;}
+function getVantaPerSec(lvl){return getMiningRatePerDay(lvl)/86400;}
+
+function getCostForLevel(lvl){
+  if(lvl<=1)return 0;
+  if(lvl==2)return 100;
+  if(lvl==3)return 125;
+  if(lvl==4)return 150;
+  if(lvl==5)return 200;
+  if(lvl==6)return 250;
+  if(lvl==7)return 300;
+  if(lvl==8)return 350;
+  if(lvl==9)return 400;
+  if(lvl==10)return 500;
+  return 500+(lvl-10)*50;
+}
+
+function getTotalNeededForLevel(t){
+  let total=0;
+  for(let i=2;i<=t;i++)total+=getCostForLevel(i);
+  return total;
+}
+
+function getCorrectLevelForBalance(base){
+  if(base<100)return 1;
+  let lvl=1;
+  for(let i=2;i<=1000;i++){
+    if(base>=getTotalNeededForLevel(i))lvl=i;
+    else break;
+  }
+  return lvl;
+}
+
+function autoJumpLevel(){
+  const combined=poolBalance+onChainBalance;
+  const correct=getCorrectLevelForBalance(combined>0?combined:poolBalance);
+  if(correct>currentMinerLevel){
+    currentMinerLevel=correct;
+    localStorage.setItem("v_miner_level",String(currentMinerLevel));
+  }
+}
+
+function getDailyCap(){return getMiningRatePerDay(currentMinerLevel);}
+function getTodayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+function getMinedToday(){
+  return safeNum(localStorage.getItem("v_mined_today_"+tgId+"_"+getTodayKey()),0);
+}
+function addMinedToday(a){
+  let k="v_mined_today_"+tgId+"_"+getTodayKey();
+  let cur=getMinedToday()+a;
+  localStorage.setItem(k,String(cur));
+  return cur;
+}
+
+function updateDailyUI(){
+  try{
+    let cap=getDailyCap(),mined=getMinedToday();
+    document.getElementById("minedTodayShow").innerText=mined.toFixed(2);
+    document.getElementById("dailyCapShow").innerText=cap.toFixed(2);
+    document.getElementById("dailyProgressBar").style.width=Math.min(100,(mined/cap)*100)+"%";
+  }catch(e){}
+}
+
+/* FIXED: missing closing brace in the original offline mining function */
+function applyOfflineMining(){
+  let last=safeNum(localStorage.getItem("v_last_mine_time"),0);
+  if(last>0){
+    let diff=Math.floor((Date.now()-last)/1000);
+    if(diff>0&&diff<86400){
+      let remaining=getDailyCap()-getMinedToday();
+      if(remaining>0){
+        let earn=getVantaPerSec(currentMinerLevel)*diff;
+        if(earn>remaining)earn=remaining;
+        if(earn>0){
+          miningPending+=earn;
+          addMinedToday(earn);
+          localStorage.setItem("v_mining_pending",String(miningPending));
+        }
+      }
+    }
+  }
+  localStorage.setItem("v_last_mine_time",String(Date.now()));
+}
+
+/* DAILY CHECK-IN: fixed 5 ZQR every 24 hours */
+const DAILY_REWARDS=[5,5,5,5,5,5,5];
+const DAILY_COOLDOWN_MS=24*60*60*1000;
+
+function getDateStr(o=0){
+  let d=new Date();
+  d.setDate(d.getDate()+o);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function getDailyCheckData(){
+  return{
+    lastDate:localStorage.getItem("v_daily_last")||"",
+    lastTs:safeNum(localStorage.getItem("v_daily_last_ts"),0),
+    streak:Number(localStorage.getItem("v_daily_streak")||"0")
+  };
+}
+
+function formatTaskTime(ms){
+  let total=Math.max(0,Math.ceil(ms/1000));
+  let h=Math.floor(total/3600);
+  let m=Math.floor((total%3600)/60);
+  let s=total%60;
+  return `${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`;
+}
+
+function updateDailyCheckUI(){
+  try{
+    let data=getDailyCheckData();
+    let lastTs=data.lastTs;
+    if(!lastTs&&data.lastDate===getDateStr(0)){
+      lastTs=Date.now();
+      localStorage.setItem("v_daily_last_ts",String(lastTs));
+    }
+    let remain=lastTs?Math.max(0,DAILY_COOLDOWN_MS-(Date.now()-lastTs)):0;
+    let canClaim=remain<=0;
+    let currentStreak=data.streak||0;
+    let nextDay=currentStreak+1;
+    if(nextDay>7)nextDay=1;
+    if(nextDay<1)nextDay=1;
+
+    let streakEl=document.getElementById("dailyCheckStreak");
+    let btn=document.getElementById("dailyCheckBtn");
+    let timerEl=document.getElementById("dailyCheckTimer");
+    let daysEl=document.getElementById("dailyCheckDays");
+
+    if(streakEl)streakEl.innerText=canClaim?`Day ${nextDay} • +5 ZQR`:`Day ${currentStreak||1} • +5 ZQR`;
+    if(btn){
+      btn.innerText=canClaim?"Claim +5":"⏳ "+formatTaskTime(remain);
+      btn.disabled=!canClaim;
+    }
+    if(timerEl)timerEl.innerText=canClaim?"Ready to claim +5 ZQR":"Next check-in in "+formatTaskTime(remain);
+
+    if(daysEl){
+      daysEl.innerHTML="";
+      DAILY_REWARDS.forEach((r,i)=>{
+        let dayNum=i+1;
+        let bg="bg-white/10 text-white/50";
+        if(!canClaim&&dayNum<=currentStreak)bg="bg-green-500 text-black font-bold";
+        else if(canClaim&&dayNum===nextDay)bg="bg-cyan-400 text-black font-bold animate-pulse";
+        let div=document.createElement("div");
+        div.className=`${bg} rounded-xl py-2 text-center text-[10px] flex-1`;
+        div.innerHTML=`Day ${dayNum}<br>+${r}`;
+        daysEl.appendChild(div);
+      });
+    }
+  }catch(e){}
+}
+
+function claimDailyCheck(){
+  let data=getDailyCheckData();
+  let lastTs=data.lastTs;
+  if(!lastTs&&data.lastDate===getDateStr(0)){
+    lastTs=Date.now();
+    localStorage.setItem("v_daily_last_ts",String(lastTs));
+  }
+  if(lastTs&&Date.now()-lastTs<DAILY_COOLDOWN_MS){
+    alert("You can claim again in "+formatTaskTime(DAILY_COOLDOWN_MS-(Date.now()-lastTs)));
+    return;
+  }
+
+  let yesterday=getDateStr(-1);
+  let newStreak=data.lastDate===yesterday?data.streak+1:1;
+  if(newStreak>7)newStreak=1;
+
+  poolBalance+=5;
+  localStorage.setItem("v_balance",String(poolBalance));
+  localStorage.setItem("v_daily_last",getDateStr(0));
+  localStorage.setItem("v_daily_last_ts",String(Date.now()));
+  localStorage.setItem("v_daily_streak",String(newStreak));
+
+  playZyqorixSound();
+  updateDailyCheckUI();
+  updateUI();
+  syncToSupabase();
+  alert("Daily Check-In Claimed! +5 ZQR 🎉");
+}
+setInterval(updateDailyCheckUI,1000);
+
 async function fetchLivePrice(){
   let newPrice=null;
-  try{let r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ZYQORIX_TOKEN_ADDRESS}`); let d=await r.json(); if(d.pairs&&d.pairs.length>0){let best=d.pairs.sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0]; newPrice=parseFloat(best.priceUsd);}}catch(e){}
-  if(!newPrice){try{let r2=await fetch(`https://api.ston.fi/v1/pools/${ZYQORIX_POOL_ADDRESS}`); let d2=await r2.json(); if(d2.pool&&d2.pool.lp_price_usd) newPrice=parseFloat(d2.pool.lp_price_usd);}catch(e){}}
-  if(!newPrice){try{let r3=await fetch(`https://tonapi.io/v2/rates?tokens=${ZYQORIX_TOKEN_ADDRESS}&currencies=usd`); let d3=await r3.json(); if(d3.rates&&d3.rates[ZYQORIX_TOKEN_ADDRESS]) newPrice=d3.rates[ZYQORIX_TOKEN_ADDRESS].prices?.USD;}catch(e){}}
-  if(newPrice&&newPrice>0){livePriceUsd=newPrice; localStorage.setItem("v_last_real_price",String(newPrice));}
-  try{let priceEl=document.getElementById("livePrice"); if(priceEl) priceEl.textContent="$"+livePriceUsd.toFixed(8)+" USDT • LIVE • STON.fi"; updateVaultUI();}catch(e){}
+  try{
+    let r=await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ZYQORIX_TOKEN_ADDRESS}`);
+    let d=await r.json();
+    if(d.pairs&&d.pairs.length>0){
+      let best=d.pairs.sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
+      newPrice=parseFloat(best.priceUsd);
+    }
+  }catch(e){}
+  if(!newPrice){
+    try{
+      let r2=await fetch(`https://api.ston.fi/v1/pools/${ZYQORIX_POOL_ADDRESS}`);
+      let d2=await r2.json();
+      if(d2.pool&&d2.pool.lp_price_usd)newPrice=parseFloat(d2.pool.lp_price_usd);
+    }catch(e){}
+  }
+  if(!newPrice){
+    try{
+      let r3=await fetch(`https://tonapi.io/v2/rates?tokens=${ZYQORIX_TOKEN_ADDRESS}&currencies=usd`);
+      let d3=await r3.json();
+      if(d3.rates&&d3.rates[ZYQORIX_TOKEN_ADDRESS])newPrice=d3.rates[ZYQORIX_TOKEN_ADDRESS].prices?.USD;
+    }catch(e){}
+  }
+  if(newPrice&&newPrice>0){
+    livePriceUsd=newPrice;
+    localStorage.setItem("v_last_real_price",String(newPrice));
+  }
+  try{
+    let priceEl=document.getElementById("livePrice");
+    if(priceEl)priceEl.textContent="$"+livePriceUsd.toFixed(8)+" USDT • LIVE • STON.fi";
+    updateVaultUI();
+  }catch(e){}
 }
-fetchLivePrice(); setInterval(fetchLivePrice,20000);
-function updateVaultUI(){try{let pool=poolBalance, onchain=onChainBalance, combined=pool+onchain, price=livePriceUsd||0.00001409; document.getElementById("combinedBalance").innerText=combined.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); document.getElementById("combinedUsd").innerText=(combined*price).toFixed(2); document.getElementById("combinedLevel").innerText=currentMinerLevel; document.getElementById("balProfile").innerText=Math.floor(pool).toLocaleString(); document.getElementById("balProfileOnchain").innerText=Math.floor(onchain).toLocaleString(); document.getElementById("pool").innerText=pool.toFixed(4); document.getElementById("poolUsd").textContent=`(~$${(pool*price).toFixed(4)})`; document.getElementById("lvl").innerText=currentMinerLevel;}catch(e){}}
-async function fetchProfileOnchain(){let wallet=connectedWalletAddress||localStorage.getItem("v_wallet")||""; if(!wallet) return; let bal=0; try{let r=await fetch(`https://tonapi.io/v2/accounts/${wallet}/jettons?currencies=usd`,{cache:"no-store"}); let d=await r.json(); if(d?.balances){for(let j of d.balances){if((j.jetton?.symbol||"").toUpperCase()==="ZQR"||j.jetton?.address===ZYQORIX_TOKEN_ADDRESS){bal=Number(j.balance)/(10**(j.jetton?.decimals||9)); break;}}}}catch(e){} onChainBalance=bal; localStorage.setItem("v_onchain_cached",String(bal)); autoJumpLevel(); updateVaultUI();}
-setInterval(()=>{let w=connectedWalletAddress||localStorage.getItem("v_wallet"); if(w) fetchProfileOnchain();},15000); setTimeout(fetchProfileOnchain,1500);
-function getVerifiedWallet(){return localStorage.getItem("v_verified_wallet")||"";} function isVerified(){return localStorage.getItem("v_verified")==="1"&&getVerifiedWallet()!=="";}
-function updateVerificationUI(){try{let v=isVerified(); let status=document.getElementById("verificationStatus"), btn=document.getElementById("verifyBtn"), icon=document.getElementById("verificationIcon"); if(v){if(status)status.innerText="✅ Verified"; if(icon)icon.innerText="✅"; if(btn){btn.innerText="✅ VERIFIED"; btn.disabled=true;}}else{if(status)status.innerText="Not verified"; if(icon)icon.innerText="🔐"; if(btn){btn.innerText=connectedWalletAddress?"VERIFY WITH 0.1 TON":"CONNECT WALLET FIRST"; btn.disabled=false;}}}catch(e){}}
-async function verifyAccount(){if(isVerified()){alert("Already verified");return;} if(!connectedWalletAddress){alert("Connect wallet first"); return;} if(!tonConnectUI){alert("Connect wallet first");return;} let btn=document.getElementById("verifyBtn"); btn.disabled=true; btn.innerText="Opening Wallet..."; try{let result=await tonConnectUI.sendTransaction({validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:OWNER_WALLET,amount:VERIFICATION_NANOTON}]}); if(!result?.boc) throw new Error("fail"); localStorage.setItem("v_verified_wallet",connectedWalletAddress); localStorage.setItem("v_verified","1"); playZyqorixSound(); updateVerificationUI(); await syncToSupabase(); alert("Verified! ✅");}catch(e){btn.disabled=false; btn.innerText="VERIFY WITH 0.1 TON"; alert("Verification failed");}}
-function isUserJoined(){let done=readArray("v_tasks_done"); return localStorage.getItem("v_joined_channel")==="true"||done.includes("join_channel");}
-function checkTasksUI(){let done=readArray("v_tasks_done"); let b=document.getElementById("taskBtn1"); if(b&&done.includes("join_channel")){b.innerText="✅ Done"; b.disabled=true;} updateReactUI(); updateBioUI(); updateDailyCheckUI();}
-function doTask(amount,taskId,link){let done=readArray("v_tasks_done"); if(done.includes(taskId)){alert("Already done");return;} let b=document.getElementById("taskBtn1"); if(b&&b.innerText.includes("Join")){window.open(link,"_blank"); b.innerText="Verify ✅"; return;} poolBalance+=amount; if(!done.includes(taskId)) done.push(taskId); if(taskId==="join_channel") localStorage.setItem("v_joined_channel","true"); localStorage.setItem("v_tasks_done",JSON.stringify(done)); localStorage.setItem("v_balance",String(poolBalance)); if(b){b.innerText="✅ Done"; b.disabled=true;} playZyqorixSound(); updateUI(); syncToSupabase();}
-function getReactTime(){return safeNum(localStorage.getItem("v_react_last"),0);} function updateReactUI(){try{let last=getReactTime(), now=Date.now(), diff=now-last, sixHours=6*60*60*1000; let el=document.getElementById("reactTimer"), btn=document.getElementById("reactBtn"); if(!el||!btn) return; if(diff>=sixHours||last===0){el.innerText="Ready! +5 ZQR"; btn.innerText="React"; btn.disabled=false;}else{let remain=sixHours-diff, h=Math.floor(remain/3600000), m=Math.floor((remain%3600000)/60000); el.innerText=`Next in ${h}h ${m}m`; btn.innerText=`${h}h ${m}m`; btn.disabled=true;}}catch(e){}}
+fetchLivePrice();
+setInterval(fetchLivePrice,20000);
+
+function updateVaultUI(){
+  try{
+    let pool=poolBalance,onchain=onChainBalance,combined=pool+onchain,price=livePriceUsd||0.00001409;
+    document.getElementById("combinedBalance").innerText=combined.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById("combinedUsd").innerText=(combined*price).toFixed(2);
+    document.getElementById("combinedLevel").innerText=currentMinerLevel;
+    document.getElementById("balProfile").innerText=Math.floor(pool).toLocaleString();
+    document.getElementById("balProfileOnchain").innerText=Math.floor(onchain).toLocaleString();
+    document.getElementById("pool").innerText=pool.toFixed(4);
+    document.getElementById("poolUsd").textContent=`(~$${(pool*price).toFixed(4)})`;
+    document.getElementById("lvl").innerText=currentMinerLevel;
+  }catch(e){}
+}
+
+async function fetchProfileOnchain(){
+  let wallet=connectedWalletAddress||localStorage.getItem("v_wallet")||"";
+  if(!wallet)return;
+  let bal=0;
+  try{
+    let r=await fetch(`https://tonapi.io/v2/accounts/${wallet}/jettons?currencies=usd`,{cache:"no-store"});
+    let d=await r.json();
+    if(d?.balances){
+      for(let j of d.balances){
+        if((j.jetton?.symbol||"").toUpperCase()==="ZQR"||j.jetton?.address===ZYQORIX_TOKEN_ADDRESS){
+          bal=Number(j.balance)/(10**(j.jetton?.decimals||9));
+          break;
+        }
+      }
+    }
+  }catch(e){}
+  onChainBalance=bal;
+  localStorage.setItem("v_onchain_cached",String(bal));
+  autoJumpLevel();
+  updateVaultUI();
+}
+
+setInterval(()=>{
+  let w=connectedWalletAddress||localStorage.getItem("v_wallet");
+  if(w)fetchProfileOnchain();
+},15000);
+setTimeout(fetchProfileOnchain,1500);
+
+function getVerifiedWallet(){return localStorage.getItem("v_verified_wallet")||"";}
+function isVerified(){return localStorage.getItem("v_verified")==="1"&&getVerifiedWallet()!=="";}
+
+function updateVerificationUI(){
+  try{
+    let v=isVerified();
+    let status=document.getElementById("verificationStatus");
+    let btn=document.getElementById("verifyBtn");
+    let icon=document.getElementById("verificationIcon");
+    if(v){
+      if(status)status.innerText="✅ Verified";
+      if(icon)icon.innerText="✅";
+      if(btn){btn.innerText="✅ VERIFIED";btn.disabled=true;}
+    }else{
+      if(status)status.innerText="Not verified";
+      if(icon)icon.innerText="🔐";
+      if(btn){
+        btn.innerText=connectedWalletAddress?"VERIFY WITH 0.1 TON":"CONNECT WALLET FIRST";
+        btn.disabled=false;
+      }
+    }
+  }catch(e){}
+}
+
+async function verifyAccount(){
+  if(isVerified()){
+    alert("Already verified");
+    return;
+  }
+  if(!connectedWalletAddress){alert("Connect wallet first");return;}
+  if(!tonConnectUI){alert("Connect wallet first");return;}
+
+  let btn=document.getElementById("verifyBtn");
+  btn.disabled=true;
+  btn.innerText="Opening Wallet...";
+
+  try{
+    let result=await tonConnectUI.sendTransaction({
+      validUntil:Math.floor(Date.now()/1000)+600,
+      messages:[{address:OWNER_WALLET,amount:VERIFICATION_NANOTON}]
+    });
+    if(!result?.boc)throw new Error("fail");
+
+    localStorage.setItem("v_verified_wallet",connectedWalletAddress);
+    localStorage.setItem("v_verified","1");
+    playZyqorixSound();
+    updateVerificationUI();
+    await syncToSupabase();
+    alert("Verified! ✅");
+  }catch(e){
+    btn.disabled=false;
+    btn.innerText="VERIFY WITH 0.1 TON";
+    alert("Verification failed");
+  }
+}
+
+function isUserJoined(){
+  let done=readArray("v_tasks_done");
+  return localStorage.getItem("v_joined_channel")==="true"||done.includes("join_channel");
+}
+
+function checkTasksUI(){
+  let done=readArray("v_tasks_done");
+  let b=document.getElementById("taskBtn1");
+  if(b&&done.includes("join_channel")){
+    b.innerText="✅ Done";
+    b.disabled=true;
+  }
+  updateReactUI();
+  updateBioUI();
+  updateDailyCheckUI();
+}
+
+function doTask(amount,taskId,link){
+  let done=readArray("v_tasks_done");
+  if(done.includes(taskId)){alert("Already done");return;}
+
+  let b=document.getElementById("taskBtn1");
+  if(b&&b.innerText.includes("Join")){
+    window.open(link,"_blank");
+    b.innerText="Verify ✅";
+    return;
+  }
+
+  poolBalance+=5;
+  if(!done.includes(taskId))done.push(taskId);
+  if(taskId==="join_channel")localStorage.setItem("v_joined_channel","true");
+  localStorage.setItem("v_tasks_done",JSON.stringify(done));
+  localStorage.setItem("v_balance",String(poolBalance));
+
+  if(b){b.innerText="✅ Done";b.disabled=true;}
+  playZyqorixSound();
+  updateUI();
+  syncToSupabase();
+}
+
+/* REACT TASK: +5 ZQR every 12 hours */
+function getReactTime(){return safeNum(localStorage.getItem("v_react_last"),0);}
+
+function updateReactUI(){
+  try{
+    let last=getReactTime(),now=Date.now(),cooldown=12*60*60*1000;
+    let el=document.getElementById("reactTimer");
+    let btn=document.getElementById("reactBtn");
+    if(!el||!btn)return;
+
+    let remain=last?Math.max(0,cooldown-(now-last)):0;
+    if(remain<=0){
+      el.innerText="Ready! +5 ZQR";
+      btn.innerText="React";
+      btn.disabled=false;
+    }else{
+      let formatted=formatTaskTime(remain);
+      el.innerText="Next in "+formatted;
+      btn.innerText=formatted;
+      btn.disabled=true;
+    }
+  }catch(e){}
+}
 setInterval(updateReactUI,1000);
-function doReactTask(){let last=getReactTime(), now=Date.now(), sixHours=6*60*60*1000; if(now-last<sixHours&&last!==0){alert("Please wait 6hrs");return;} window.open("https://t.me/ZYQORIX","_blank"); setTimeout(()=>{poolBalance+=5; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_react_last",String(Date.now())); playZyqorixSound(); updateUI(); updateReactUI(); syncToSupabase(); alert("+5 ZQR!");},3000);}
-function getBioTime(){return safeNum(localStorage.getItem("v_bio_last"),0);} function updateBioUI(){try{let last=getBioTime(), now=Date.now(), diff=now-last, day=24*60*60*1000; let el=document.getElementById("bioTimer"), btn=document.getElementById("bioBtn"); if(!el||!btn) return; if(diff>=day||last===0){el.innerText="Ready! +5 ZQR"; btn.innerText="Add Bio"; btn.disabled=false;}else{let remain=day-diff, h=Math.floor(remain/3600000); el.innerText=`Next in ${h}h`; btn.innerText=`${h}h`; btn.disabled=true;}}catch(e){}}
+
+function doReactTask(){
+  let last=getReactTime(),now=Date.now(),cooldown=12*60*60*1000;
+  if(last&&now-last<cooldown){
+    alert("Please wait "+formatTaskTime(cooldown-(now-last)));
+    return;
+  }
+
+  window.open("https://t.me/ZYQORIX","_blank");
+  setTimeout(()=>{
+    poolBalance+=5;
+    localStorage.setItem("v_balance",String(poolBalance));
+    localStorage.setItem("v_react_last",String(Date.now()));
+    playZyqorixSound();
+    updateUI();
+    updateReactUI();
+    syncToSupabase();
+    alert("+5 ZQR!");
+  },3000);
+}
+
+/* BIO TASK: +5 ZQR every 72 hours */
+function getBioTime(){return safeNum(localStorage.getItem("v_bio_last"),0);}
+
+function updateBioUI(){
+  try{
+    let last=getBioTime(),now=Date.now(),cooldown=72*60*60*1000;
+    let el=document.getElementById("bioTimer");
+    let btn=document.getElementById("bioBtn");
+    if(!el||!btn)return;
+
+    let remain=last?Math.max(0,cooldown-(now-last)):0;
+    if(remain<=0){
+      el.innerText="Ready! +5 ZQR";
+      btn.innerText="Add Bio";
+      btn.disabled=false;
+    }else{
+      let formatted=formatTaskTime(remain);
+      el.innerText="Next in "+formatted;
+      btn.innerText=formatted;
+      btn.disabled=true;
+    }
+  }catch(e){}
+}
 setInterval(updateBioUI,1000);
-function doBioTask(){let last=getBioTime(), now=Date.now(), day=24*60*60*1000; if(now-last<day&&last!==0){alert("Please wait 24hrs");return;} window.open("https://t.me/ZYQORIX_BOT","_blank"); setTimeout(()=>{poolBalance+=5; localStorage.setItem("v_balance",String(poolBalance)); localStorage.setItem("v_bio_last",String(Date.now())); playZyqorixSound(); updateUI(); updateBioUI(); syncToSupabase(); alert("+5 ZQR! Make sure https://t.me/ZYQORIX_BOT is in your Bio.");},3000);}
-function renderMiners(){try{let grid=document.getElementById("minersGrid"); if(!grid) return; grid.innerHTML=""; for(let i=1;i<=visibleLevels;i++){let rateDay=getMiningRatePerDay(i); let isActive=i===currentMinerLevel, isOwned=i<currentMinerLevel; let dotClass="timeline-dot ", cardClass="timeline-card ", leftHtml="", rightHtml=""; if(isOwned){dotClass+="owned"; cardClass+="owned"; leftHtml=`<div><p class="text-[13px] font-bold">Lvl ${i} <span class="text-[#00FF88]">✅</span></p><p class="text-[10px] text-white/50">${rateDay.toFixed(2)}/day • Owned</p></div>`; rightHtml=`<span class="text-[#00FF88] text-[10px] font-bold">UNLOCKED</span>`;} else if(isActive){dotClass+="active"; cardClass+="active"; leftHtml=`<div><p class="text-[13px] font-bold text-cyan-300">Lvl ${i} • ACTIVE ⚡</p><p class="text-[10px] text-cyan-200/70">${rateDay.toFixed(2)}/day • Mining</p></div>`; rightHtml=`<span class="text-cyan-300 text-[10px] font-bold animate-pulse">MINING</span>`;} else{dotClass+="locked"; cardClass+="locked"; leftHtml=`<div><p class="text-[13px] font-bold text-white/70">Lvl ${i}</p><p class="text-[10px] text-white/40">${rateDay.toFixed(2)}/day</p></div>`; rightHtml=`<span class="text-white/40 text-[10px]">LOCKED</span>`;} let item=document.createElement("div"); item.className="timeline-item"; item.innerHTML=`<div class="${dotClass}"></div><div class="${cardClass}">${leftHtml}${rightHtml}</div>`; grid.appendChild(item);} document.getElementById("myLevelShow").innerText=currentMinerLevel; document.getElementById("mySpeedShow").innerText=getMiningRatePerDay(currentMinerLevel).toFixed(2)+" /day";}catch(e){}}
-function loadMoreMiners(){visibleLevels=Math.min(1000,visibleLevels+20); renderMiners();}
-function updateFriendsUI(){try{let myRefs=readArray(refKey); let count=myRefs.length; let available=Math.max(0,count*100-refClaimed); document.getElementById("refCount").innerText=count; document.getElementById("refEarned").innerText=available+" ZQR"; document.getElementById("refRewardText").innerText=available>0?available+" available":"All claimed"; document.getElementById("teamWalletText").innerText=Math.max(0,teamWallet-teamClaimed).toFixed(4)+" ZQR available";}catch(e){}}
-async function registerReferral(){
-  if(!supabaseClient) return;
-  let inviter=urlParams.get("ref")||urlParams.get("start")||tg?.initDataUnsafe?.start_param||"";
-  if(!inviter||inviter===String(tgId)) return;
-  if(localStorage.getItem("v_inviter_registered")==="1") return;
-  try{
-    let {data}=await supabaseClient.from("zyqorix_referrals").select("*").eq("invited_id",String(tgId)).maybeSingle();
-    if(data){localStorage.setItem("v_inviter_registered","1"); return;}
-    let u=tg?.initDataUnsafe?.user||{};
-    let realFirstName=u.first_name||tgName||"Miner";
-    let realLastName=u.last_name?" "+u.last_name:"";
-    let realFullName=(realFirstName+realLastName).trim();
-    let realUsername=u.username||"";
-    let displayName=realUsername?realFullName+" (@"+realUsername+")":realFullName;
-    await supabaseClient.from("zyqorix_referrals").insert({inviter_id:String(inviter),invited_id:String(tgId),invited_name:String(displayName),invited_username:String(realUsername),invited_first_name:String(realFullName)});
-    localStorage.setItem("v_inviter_registered","1"); localStorage.setItem("v_inviter",inviter);
-  }catch(e){}
+
+function doBioTask(){
+  let last=getBioTime(),now=Date.now(),cooldown=72*60*60*1000;
+  if(last&&now-last<cooldown){
+    alert("Please wait "+formatTaskTime(cooldown-(now-last)));
+    return;
+  }
+
+  window.open("https://t.me/ZYQORIX_BOT","_blank");
+  setTimeout(()=>{
+    poolBalance+=5;
+    localStorage.setItem("v_balance",String(poolBalance));
+    localStorage.setItem("v_bio_last",String(Date.now()));
+    playZyqorixSound();
+    updateUI();
+    updateBioUI();
+    syncToSupabase();
+    alert("+5 ZQR! Make sure https://t.me/ZYQORIX_BOT is in your Bio.");
+  },3000);
+}function renderMiners(){
+  const container=document.getElementById("minersList");
+  if(!container)return;
+
+  let html="";
+  for(let level=1;level<=1000;level++){
+    const required=level===1?0:Math.floor(100+(level-2)*500);
+    const daily=3+(level-1)*0.2121212121;
+    const unlocked=currentLevel>=level;
+
+    html+=`
+      <div class="glass p-3 rounded-xl flex justify-between items-center mb-2">
+        <div>
+          <p class="font-bold text-cyan-300">Miner Level ${level}</p>
+          <p class="text-xs text-gray-400">Required: ${required.toLocaleString()} ZQR</p>
+          <p class="text-xs text-gray-400">Daily mining: ${daily.toFixed(2)} ZQR</p>
+        </div>
+        <button
+          class="px-3 py-2 rounded-lg text-sm font-bold ${unlocked?'bg-green-600':'bg-cyan-600'}"
+          ${unlocked?'disabled':`onclick="upgradeMiner(${level})"`}>
+          ${unlocked?'Unlocked':'Upgrade'}
+        </button>
+      </div>`;
+  }
+  container.innerHTML=html;
 }
+
+async function upgradeMiner(level){
+  if(level<=currentLevel)return;
+  if(level!==currentLevel+1){
+    alert("Upgrade miners one level at a time.");
+    return;
+  }
+
+  const required=level===2?100:Math.floor(100+(level-2)*500);
+  if(poolBalance<required){
+    alert(`You need ${required.toLocaleString()} ZQR in your App Pool.`);
+    return;
+  }
+
+  poolBalance-=required;
+  currentLevel=level;
+  localStorage.setItem("v_balance",poolBalance);
+  localStorage.setItem("v_miner_level",currentLevel);
+
+  await saveProfile();
+  updateUI();
+  renderMiners();
+  alert(`Congratulations! You upgraded to Miner Level ${level}.`);
+}
+
+function updateMiningUI(){
+  const balanceEl=document.getElementById("balance");
+  const pendingEl=document.getElementById("miningPending");
+  const levelEl=document.getElementById("currentLevel");
+  const rateEl=document.getElementById("miningRate");
+
+  if(balanceEl)balanceEl.textContent=Number(poolBalance).toFixed(4);
+  if(pendingEl)pendingEl.textContent=Number(miningPending).toFixed(6);
+  if(levelEl)levelEl.textContent=currentLevel;
+  if(rateEl)rateEl.textContent=getMiningRatePerDay(currentLevel).toFixed(2);
+}
+
+function updateUI(){
+  updateMiningUI();
+  updateWalletUI();
+  updateTasksUI();
+  updateWithdrawUI();
+  updateDailyCheckUI();
+  updateReactUI();
+  updateBioUI();
+}
+
+function updateWalletUI(){
+  const walletEl=document.getElementById("walletAddress");
+  const statusEl=document.getElementById("walletStatus");
+
+  if(walletEl){
+    walletEl.textContent=connectedWalletAddress
+      ?connectedWalletAddress.slice(0,8)+"..."+connectedWalletAddress.slice(-6)
+      :"Not connected";
+  }
+
+  if(statusEl){
+    statusEl.textContent=getVerifiedWallet()
+      ?"Verified"
+      :"Not verified";
+  }
+}
+
+function updateTasksUI(){
+  checkTasksUI();
+  updateDailyCheckUI();
+  updateReactUI();
+  updateBioUI();
+}
+
+function checkTasksUI(){
+  const joinButton=document.getElementById("joinChannelButton");
+  const joined=localStorage.getItem("v_joined_channel")==="true";
+
+  if(joinButton){
+    joinButton.textContent=joined?"Completed":"Join +5 ZQR";
+    joinButton.disabled=joined;
+  }
+}
+
+function doTask(amount,taskName){
+  if(taskName==="join"){
+    const completed=localStorage.getItem("v_joined_channel")==="true";
+    if(completed)return;
+
+    const opened=localStorage.getItem("v_join_opened")==="true";
+    if(!opened){
+      localStorage.setItem("v_join_opened","true");
+      window.open("https://t.me/ZYQORIX","_blank");
+      const button=document.getElementById("joinChannelButton");
+      if(button)button.textContent="Verify & Claim +5";
+      return;
+    }
+
+    poolBalance+=5;
+    localStorage.setItem("v_balance",poolBalance);
+    localStorage.setItem("v_joined_channel","true");
+    localStorage.removeItem("v_join_opened");
+    saveProfile();
+    updateUI();
+    alert("You received 5 ZQR!");
+  }
+}
+
+function getReactTime(){
+  return Number(localStorage.getItem("v_react_last")||0);
+}
+
+function formatCountdown(ms){
+  ms=Math.max(0,ms);
+  const hours=Math.floor(ms/3600000);
+  const minutes=Math.floor((ms%3600000)/60000);
+  const seconds=Math.floor((ms%60000)/1000);
+  return `${String(hours).padStart(2,"0")}h ${String(minutes).padStart(2,"0")}m ${String(seconds).padStart(2,"0")}s`;
+}
+
+function updateReactUI(){
+  const timer=document.getElementById("reactTimer");
+  const button=document.getElementById("reactButton");
+  const twelveHours=12*60*60*1000;
+  const remaining=twelveHours-(Date.now()-getReactTime());
+
+  if(timer)timer.textContent=remaining>0?formatCountdown(remaining):"Ready";
+  if(button){
+    button.disabled=remaining>0;
+    button.textContent=remaining>0?"Available in "+formatCountdown(remaining):"Claim +5 ZQR";
+  }
+}
+
+function doReactTask(){
+  const twelveHours=12*60*60*1000;
+  const last=getReactTime();
+
+  if(Date.now()-last<twelveHours){
+    alert("Please wait until your 12-hour cooldown ends.");
+    return;
+  }
+
+  window.open("https://t.me/ZYQORIX","_blank");
+
+  setTimeout(()=>{
+    localStorage.setItem("v_react_last",Date.now());
+    poolBalance+=5;
+    localStorage.setItem("v_balance",poolBalance);
+    saveProfile();
+    updateUI();
+    alert("You received 5 ZQR!");
+  },3000);
+}
+
+function updateBioUI(){
+  const timer=document.getElementById("bioTimer");
+  const button=document.getElementById("bioButton");
+  const threeDays=72*60*60*1000;
+  const last=Number(localStorage.getItem("v_bio_last")||0);
+  const remaining=threeDays-(Date.now()-last);
+
+  if(timer)timer.textContent=remaining>0?formatCountdown(remaining):"Ready";
+  if(button){
+    button.disabled=remaining>0;
+    button.textContent=remaining>0?"Available in "+formatCountdown(remaining):"Claim +5 ZQR";
+  }
+}
+
+function doBioTask(){
+  const threeDays=72*60*60*1000;
+  const last=Number(localStorage.getItem("v_bio_last")||0);
+
+  if(Date.now()-last<threeDays){
+    alert("Please wait until your 72-hour cooldown ends.");
+    return;
+  }
+
+  window.open("https://t.me/ZYQORIX","_blank");
+
+  setTimeout(()=>{
+    localStorage.setItem("v_bio_last",Date.now());
+    poolBalance+=5;
+    localStorage.setItem("v_balance",poolBalance);
+    saveProfile();
+    updateUI();
+    alert("You received 5 ZQR!");
+  },3000);
+}
+
 async function loadMyReferrals(){
-  if(!supabaseClient) return;
+  const list=document.getElementById("referralList");
+  if(!list)return;
+
+  list.innerHTML='<p class="text-gray-400 text-sm">Loading referrals...</p>';
+
   try{
-    let {data}=await supabaseClient.from("zyqorix_referrals").select("*").eq("inviter_id",String(tgId)).order("created_at",{ascending:false});
-    let count=data?data.length:0; document.getElementById("refCount").innerText=count;
-    localStorage.setItem(refKey,JSON.stringify((data||[]).map(r=>r.invited_id)));
-    let list=document.getElementById("refList"); if(!list) return; list.innerHTML="";
-    if(count===0){list.innerHTML='<p class="text-center text-white/40 text-xs mt-4">No referrals yet</p>';}
-    else{data.forEach((r)=>{
-      let displayName=r.invited_name||r.invited_first_name||"";
-      let username=r.invited_username||"";
-      if(!displayName) displayName="User "+String(r.invited_id).slice(-4);
-      let subText="";
-      if(username&&!displayName.includes("@")) subText="@"+username;
-      else if(!username) subText="ID: "+r.invited_id;
-      else subText="";
-      let initial=displayName.charAt(0).toUpperCase();
-      let item=document.createElement("div"); item.className="glass p-3 text-xs flex justify-between items-center";
-      item.innerHTML=`<div class="flex items-center gap-2"><div class="w-9 h-9 bg-blue-500/30 rounded-full flex items-center justify-center font-bold text-[14px]">${initial}</div><div><p class="font-bold text-[13px]">${displayName}</p><p class="text-white/40 text-[10px]">${subText} • ${r.created_at?new Date(r.created_at).toLocaleDateString():""}</p></div></div><span class="text-blue-300 text-[10px]">+100 ZQR</span>`;
-      list.appendChild(item);
-    });}
-    updateFriendsUI();
-  }catch(e){}
+    const {data,error}=await supabase
+      .from("zyqorix_referrals")
+      .select("*")
+      .eq("referrer_id",telegramUserId);
+
+    if(error)throw error;
+
+    if(!data||!data.length){
+      list.innerHTML='<p class="text-gray-400 text-sm">No referrals yet.</p>';
+      return;
+    }
+
+    list.innerHTML=data.map(ref=>{
+      const name=ref.referred_name||ref.referred_username||"ZYQORIX User";
+      return `
+        <div class="glass p-3 rounded-xl mb-2">
+          <div class="flex justify-between items-center">
+            <span class="font-semibold">${escapeHTML(name)}</span>
+            <span class="text-xs text-yellow-400">Pending</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">
+            100 ZQR reward requires 3 active days and verified wallet.
+          </p>
+        </div>`;
+    }).join("");
+  }catch(error){
+    console.error("Referral loading error:",error);
+    list.innerHTML='<p class="text-gray-400 text-sm">Unable to load referrals.</p>';
+  }
 }
-function claimReferral(){let myRefs=readArray(refKey); let unclaimed=Math.max(0,myRefs.length*100-refClaimed); if(unclaimed<=0){alert("All claimed");return;} if(!isVerified()){alert("Verify first");return;} refClaimed+=unclaimed; localStorage.setItem(refClaimedKey,String(refClaimed)); poolBalance+=unclaimed; localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); syncToSupabase(); alert("+"+unclaimed+" ZQR");}
-function claimTeamWallet(){let av=Math.max(0,teamWallet-teamClaimed); if(av<=0){alert("No team reward yet");return;} teamClaimed+=av; poolBalance+=av; localStorage.setItem(teamClaimedKey,String(teamClaimed)); localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); syncToSupabase(); alert("Team +"+av.toFixed(4)+" ZQR");}
-function copyRef(){let l=document.getElementById("refLink").innerText; navigator.clipboard?.writeText(l).then(()=>alert("Copied!"));}
-async function claimMining(){
-  // Use isolated mining value so CLAIM works even if big block failed
-  var amt = window.__isoMining || 0;
-  if(amt<=0){alert("Nothing to claim yet, wait few seconds");return;}
-  poolBalance+=amt; window.__isoMining=0; localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); await syncToSupabase(); alert("+"+amt.toFixed(4)+" ZQR");
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,char=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[char]));
 }
-async function syncToSupabase(){if(!supabaseClient) return; try{await supabaseClient.from("zyqorix_users").upsert({tg_id:String(tgId),username:String(tgName),balance:Number(poolBalance),mining_pending:Number(miningPending),miner_level:Number(currentMinerLevel),verified:isVerified(),verified_wallet:getVerifiedWallet(),wallet:connectedWalletAddress||localStorage.getItem("v_wallet")||"",ref_claimed:Number(refClaimed),team_wallet:Number(teamWallet),team_claimed:Number(teamClaimed),total_refs:readArray(refKey).length,updated_at:new Date().toISOString()},{onConflict:'tg_id'});}catch(e){}}
-async function saveWithdrawToSupabase(req){if(!supabaseClient) return false; try{let {error}=await supabaseClient.from("zyqorix_withdraws").insert({user_id:String(req.userId),user_name:String(req.userName),amount:Number(req.amount),receive:Number(req.receive),wallet:String(req.wallet),status:"pending"}); if(error) throw error; return true;}catch(e){return false;}}
-async function loadWithdrawsFromSupabase(){let div=document.getElementById("withdrawHistory"); if(!supabaseClient){div.innerHTML='<p class="text-white/30 text-xs text-center">No withdrawals yet</p>'; return;} try{div.innerHTML='<p class="text-white/30 text-xs text-center">Loading history...</p>'; let {data}=await supabaseClient.from("zyqorix_withdraws").select("*").eq("user_id",String(tgId)).order("created_at",{ascending:false}).limit(20); if(!data||data.length===0){div.innerHTML='<p class="text-white/30 text-xs text-center">No withdrawals yet</p>'; return;} div.innerHTML=""; data.forEach(r=>{let row=document.createElement("div"); row.className="glass p-2 mt-2 text-[11px] flex justify-between"; row.innerHTML=`<div><b>${r.amount} → ${r.receive}</b><br><span class="text-white/40 text-[9px]">${new Date(r.created_at).toLocaleString()}</span></div><span class="${r.status==='pending'?'text-yellow-400':'text-green-400'} font-bold">${String(r.status).toUpperCase()}</span>`; div.appendChild(row);});}catch(e){div.innerHTML='<p class="text-red-400 text-xs text-center">Failed to load</p>';}}
-function getLastWithdrawLocal(){return safeNum(localStorage.getItem("v_last_withdraw_"+tgId),0);} function getWithdrawRemainingMs(){let last=getLastWithdrawLocal(); if(!last) return 0; let diff=Date.now()-last; if(diff>=WITHDRAW_COOLDOWN_MS) return 0; return WITHDRAW_COOLDOWN_MS-diff;} function formatWithdrawRemaining(ms){let h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000); return `${h}h ${m}m ${s}s`;}
-function updateWithdrawUI(){try{calcReceive(); let b=document.getElementById("withdrawBtn"), cdEl=document.getElementById("withdrawCooldownText"), remain=getWithdrawRemainingMs(); if(cdEl){if(remain>0){cdEl.innerText=`⏳ Next withdrawal in ${formatWithdrawRemaining(remain)}`; cdEl.className="text-xs text-red-400 mt-1 font-bold";}else{cdEl.innerText=`✅ Withdrawal Available - 1 per 24 hours`; cdEl.className="text-xs text-yellow-300 mt-1 font-bold";}} if(b){if(!isVerified()){b.innerText="🔐 VERIFY TO WITHDRAW"; b.disabled=false;}else if(remain>0){b.innerText=`⏳ WAIT ${formatWithdrawRemaining(remain)}`; b.disabled=true;}else{b.innerText="Request Withdrawal"; b.disabled=false;}}}catch(e){}}
-setInterval(updateWithdrawUI,1000);
-async function checkWithdrawCooldownSupabase(){if(!supabaseClient) return getWithdrawRemainingMs(); try{let {data}=await supabaseClient.from("zyqorix_withdraws").select("created_at").eq("user_id",String(tgId)).order("created_at",{ascending:false}).limit(1).maybeSingle(); if(data&&data.created_at){let last=new Date(data.created_at).getTime(); let diff=Date.now()-last; if(diff<WITHDRAW_COOLDOWN_MS){localStorage.setItem("v_last_withdraw_"+tgId,String(last)); return WITHDRAW_COOLDOWN_MS-diff;}}}catch(e){} return getWithdrawRemainingMs();}
-function calcReceive(){try{let i=document.getElementById("withdrawAmt"), r=document.getElementById("receiveAmt"); let a=Number(i.value.trim()||0); let rec=Math.max(0,a-WITHDRAW_FEE); if(r) r.innerText=rec.toFixed(2); if(i){i.placeholder="Enter 2000"; i.min=2000; i.max=2000;}}catch(e){}}
-async function withdraw(){if(!connectedWalletAddress){alert("Connect wallet first"); return;} if(!isVerified()){alert("Please verify with 0.1 TON first");return;} let localRemain=getWithdrawRemainingMs(); if(localRemain>0){alert(`Already withdrawn. Next in ${formatWithdrawRemaining(localRemain)}`); return;} let serverRemain=await checkWithdrawCooldownSupabase(); if(serverRemain>0){alert(`Already withdrawn. Next in ${formatWithdrawRemaining(serverRemain)}`); return;} let amount=Number(document.getElementById("withdrawAmt").value.trim()); if(amount!==2000){alert("You must withdraw exactly 2000 ZQR"); return;} if(amount>poolBalance){alert("Insufficient balance");return;} let wallet=connectedWalletAddress||localStorage.getItem("v_wallet")||""; if(!wallet){alert("Connect wallet");return;} let receive=amount-WITHDRAW_FEE; if(!confirm(`Withdrawal Summary\n\nAmount: 2000 ZQR\nFee: 70 ZQR\nYou will receive: ${receive} ZQR\n\nNext withdrawal in 24hrs`)) return; let req={amount,receive,wallet,userId:String(tgId),userName:String(tgName)}; let saved=await saveWithdrawToSupabase(req); if(!saved){alert("Network error. Try again.");return;} localStorage.setItem("v_last_withdraw_"+tgId,String(Date.now())); poolBalance-=amount; localStorage.setItem("v_balance",String(poolBalance)); playZyqorixSound(); updateUI(); loadWithdrawsFromSupabase(); await syncToSupabase(); document.getElementById("withdrawAmt").value=""; calcReceive(); updateWithdrawUI(); alert(`Withdrawal request submitted! You will receive ${receive} ZQR.`);}
-let lastRenderedLevel=-1;
-function updateUI(){try{autoJumpLevel(); if(poolBalance>MAX_BALANCE){poolBalance=MAX_BALANCE; localStorage.setItem("v_balance",String(MAX_BALANCE));} poolBalance=Math.max(0,safeNum(poolBalance,0)); miningPending=Math.max(0,safeNum(miningPending,0)); let rate=getVantaPerSec(currentMinerLevel); document.getElementById("power").innerText=(3.02+currentMinerLevel*0.06).toFixed(2); let minedToday=getMinedToday(), cap=getDailyCap(); document.getElementById("miningPlus").innerText=minedToday>=cap?"DAILY LIMIT REACHED ✅":"+"+rate.toFixed(6)+" /sec"; document.getElementById("rateShow").innerText=rate.toFixed(6); document.getElementById("dayRate").innerText=getMiningRatePerDay(currentMinerLevel).toFixed(2)+"/day"; let badge=document.getElementById("joinStatusBadge"); if(isUserJoined()){badge.innerText="● JOINED"; badge.className="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500";}else{badge.innerText="● NOT JOINED"; badge.className="bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full border border-red-500";} calcReceive(); updateFriendsUI(); updateVerificationUI(); updateWithdrawUI(); updateReactUI(); updateBioUI(); updateDailyCheckUI(); updateVaultUI(); updateDailyUI(); if(lastRenderedLevel!==currentMinerLevel){renderMiners(); lastRenderedLevel=currentMinerLevel;}}catch(e){}}
+
+async function claimReferral(){
+  alert("Referral rewards are pending. The server must confirm 3 active days and wallet verification before the 100 ZQR reward can be credited.");
+}
+
+async function claimTeamWallet(){
+  alert("Team rewards must be calculated and approved by the server from actual team earnings. No unverified local balance can be claimed.");
+}
+
+async function registerReferral(){
+  const params=new URLSearchParams(window.location.search);
+  const startParam=params.get("start")||
+    (window.Telegram?.WebApp?.initDataUnsafe?.start_param||"");
+
+  if(!startParam||!telegramUserId||String(startParam)===String(telegramUserId))return;
+
+  try{
+    const {data}=await supabase
+      .from("zyqorix_referrals")
+      .select("id")
+      .eq("referred_id",telegramUserId)
+      .maybeSingle();
+
+    if(data)return;
+
+    await supabase.from("zyqorix_referrals").insert({
+      referrer_id:String(startParam),
+      referred_id:String(telegramUserId),
+      referred_name:telegramUserName||"ZYQORIX User",
+      referred_username:telegramUsername||null
+    });
+  }catch(error){
+    console.error("Referral registration error:",error);
+  }
+}
+
+function updateReferralLink(){
+  const link=document.getElementById("referralLink");
+  if(link){
+    link.value=`https://t.me/zyqorixbot?start=${telegramUserId}`;
+  }
+}
+
+function copyReferralLink(){
+  const link=document.getElementById("referralLink");
+  if(!link)return;
+
+  link.select();
+  link.setSelectionRange(0,99999);
+  navigator.clipboard?.writeText(link.value);
+  alert("Referral link copied!");
+}
+
+async function withdraw(){
+  if(!connectedWalletAddress){
+    alert("Connect your TON wallet first.");
+    return;
+  }
+
+  if(getVerifiedWallet()!==connectedWalletAddress){
+    alert("Connect the wallet you verified.");
+    return;
+  }
+
+  if(!isWalletVerified()){
+    alert("Please verify your wallet first.");
+    return;
+  }
+
+  await fetchProfileOnchain();
+
+  if(Number(onChainBalance)<2000){
+    alert("Your connected on-chain wallet must hold at least 2,000 ZQR.");
+    return;
+  }
+
+  const amount=2000;
+
+  if(poolBalance<amount){
+    alert("You need exactly 2,000 ZQR in your App Pool to request a withdrawal.");
+    return;
+  }
+
+  const last=Number(localStorage.getItem("v_last_withdraw")||0);
+  const remaining=WITHDRAW_COOLDOWN_MS-(Date.now()-last);
+
+  if(remaining>0){
+    alert("You can submit another withdrawal after "+formatCountdown(remaining)+".");
+    return;
+  }
+
+  const button=document.getElementById("withdrawButton");
+  if(button)button.disabled=true;
+
+  try{
+    const {data,error}=await supabase
+      .from("zyqorix_withdraws")
+      .insert({
+        user_id:String(telegramUserId),
+        wallet_address:connectedWalletAddress,
+        amount:amount,
+        fee:WITHDRAW_FEE,
+        status:"pending"
+      })
+      .select()
+      .single();
+
+    if(error)throw error;
+
+    poolBalance-=amount;
+    localStorage.setItem("v_balance",poolBalance);
+    localStorage.setItem("v_last_withdraw",Date.now());
+
+    await saveProfile();
+    updateUI();
+
+    alert("Your 2,000 ZQR withdrawal request has been submitted. It is pending review.");
+  }catch(error){
+    console.error("Withdrawal error:",error);
+    alert("Withdrawal request failed. Please try again.");
+  }finally{
+    if(button)button.disabled=false;
+    updateWithdrawUI();
+  }
+}
+
+function updateWithdrawUI(){
+  const timer=document.getElementById("withdrawTimer");
+  const button=document.getElementById("withdrawButton");
+  const last=Number(localStorage.getItem("v_last_withdraw")||0);
+  const remaining=WITHDRAW_COOLDOWN_MS-(Date.now()-last);
+
+  if(timer)timer.textContent=remaining>0?formatCountdown(remaining):"Ready";
+
+  if(button){
+    button.textContent=remaining>0
+      ?"Cooldown: "+formatCountdown(remaining)
+      :"Withdraw 2,000 ZQR";
+    button.disabled=remaining>0;
+  }
+}
+
+function updateOnchainBalanceUI(){
+  const el=document.getElementById("onchainBalance");
+  if(el)el.textContent=Number(onChainBalance||0).toFixed(4)+" ZQR";
+}
+
+async function refreshBalances(){
+  try{
+    await fetchProfileOnchain();
+    updateOnchainBalanceUI();
+  }catch(error){
+    console.error("Balance refresh error:",error);
+  }
+}
+
 function showPage(page){
-  ["mine","tasks","miners","friends","profile"].forEach(n=>{let el=document.getElementById(n+"-page"); if(el) el.classList.add("hidden"); let nav=document.getElementById("nav-"+n); if(nav){nav.classList.remove("nav-active"); nav.style.opacity="0.6";}});
-  document.getElementById(page+"-page").classList.remove("hidden"); let navActive=document.getElementById("nav-"+page); if(navActive){navActive.classList.add("nav-active"); navActive.style.opacity="1";}
-  if(page==="miners") renderMiners(); if(page==="tasks") checkTasksUI(); if(page==="friends") loadMyReferrals(); if(page==="profile"){loadWithdrawsFromSupabase(); fetchProfileOnchain(); fetchLivePrice(); updateVaultUI();}
+  document.querySelectorAll(".page").forEach(el=>el.classList.add("hidden"));
+  const selected=document.getElementById(page+"-page");
+  if(selected)selected.classList.remove("hidden");
+
+  document.querySelectorAll(".nav-btn").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.page===page);
+  });
+
+  if(page==="friends"){
+    loadMyReferrals();
+    updateReferralLink();
+  }
+
+  if(page==="miners")renderMiners();
+  if(page==="profile")refreshBalances();
 }
-applyOfflineMining(); registerReferral();
-setInterval(()=>{try{let cap=getDailyCap(), mined=getMinedToday(); if(mined>=cap) return; let rate=getVantaPerSec(currentMinerLevel); let toAdd=rate; if(mined+toAdd>cap) toAdd=cap-mined; if(toAdd<=0) return; miningPending+=toAdd; addMinedToday(toAdd); localStorage.setItem("v_mining_pending",String(miningPending)); localStorage.setItem("v_last_mine_time",String(Date.now()));}catch(e){}},1000);
-let savedWallet=localStorage.getItem("v_wallet"); if(savedWallet){connectedWalletAddress=savedWallet; try{document.getElementById("walletShort").innerText="✅ "+savedWallet.slice(0,6)+"..."+savedWallet.slice(-4); let wp=document.getElementById("walletDisplayProfile"); if(wp) wp.innerText=savedWallet.slice(0,5)+"..."+savedWallet.slice(-3);}catch(e){}}
-try{document.getElementById("soundBtn").innerText=soundOn?"🔊 Sound ON":"🔇 Sound OFF";}catch(e){}
-updateUI(); renderMiners(); checkTasksUI(); updateFriendsUI(); loadMyReferrals(); loadWithdrawsFromSupabase(); updateReactUI(); updateBioUI();
-setInterval(()=>{syncToSupabase();},15000);
+
+function setupNavigation(){
+  document.querySelectorAll(".nav-btn").forEach(button=>{
+    button.addEventListener("click",()=>{
+      showPage(button.dataset.page);
+    });
+  });
+}
+
+function setupCoinTap(){
+  const coin=document.getElementById("mainCoin");
+  if(!coin)return;
+
+  coin.addEventListener("click",()=>{
+    if(!isWalletVerified()){
+      alert("Connect and verify your TON wallet before mining.");
+      return;
+    }
+
+    miningPending+=0.0001;
+    localStorage.setItem("v_mining_pending",miningPending);
+    updateMiningUI();
+
+    coin.classList.remove("tap-effect");
+    void coin.offsetWidth;
+    coin.classList.add("tap-effect");
+  });
+}
+
+function updateUserDetails(){
+  const name=document.getElementById("userName");
+  if(name){
+    name.textContent=telegramUserName||"ZYQORIX User";
+  }
+
+  const username=document.getElementById("userUsername");
+  if(username){
+    username.textContent=telegramUsername?"@"+telegramUsername:"";
+  }
+}
+
+async function initializeApp(){
+  try{
+    if(window.Telegram?.WebApp){
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
+
+    setupNavigation();
+    setupCoinTap();
+    updateUserDetails();
+
+    await loadProfile();
+    await registerReferral();
+
+    applyOfflineMining();
+    updateUI();
+    renderMiners();
+    updateReferralLink();
+
+    if(typeof initTonConnect==="function"){
+      await initTonConnect();
+    }
+
+    if(typeof loadMyReferrals==="function"){
+      loadMyReferrals();
+    }
+
+    setInterval(()=>{
+      updateMiningUI();
+      updateDailyCheckUI();
+      updateReactUI();
+      updateBioUI();
+      updateWithdrawUI();
+    },1000);
+
+    setInterval(()=>{
+      saveProfile();
+    },30000);
+
+    setInterval(()=>{
+      refreshBalances();
+    },60000);
+
+  }catch(error){
+    console.error("ZYQORIX initialization error:",error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded",initializeApp);
 </script>
 </body>
 </html>
