@@ -17,6 +17,9 @@ body:before{content:'';position:fixed;inset:0;background:radial-gradient(circle 
 .nav-active{color:#22d3ee!important;opacity:1!important}button:disabled{opacity:.55;cursor:not-allowed}
 .vault-card{background:linear-gradient(135deg,#7c3aed,#06b6d4 50%,#10b981);border-radius:24px;padding:20px}
 @keyframes pulse{50%{transform:scale(1.08)}}
+.task-name{word-break:break-word;overflow-wrap:break-word;line-height:1.4}
+.badge-unqualified{background:#ef444433;color:#fca5a5;border:1px solid #ef444455;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800}
+.badge-qualified{background:#22c55e33;color:#86efac;border:1px solid #22c55e55;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:800}
 </style>
 </head>
 <body>
@@ -24,27 +27,44 @@ body:before{content:'';position:fixed;inset:0;background:radial-gradient(circle 
  <div class="flex justify-between items-center mb-3 gap-2"><div><p id="userName" class="font-bold text-lg">Miner</p><div class="flex gap-2 mt-1"><span class="bg-white text-black text-xs px-3 py-1 rounded-full font-bold">Lvl <span id="lvl">1</span></span><span id="joinStatusBadge" class="bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full">● NOT JOINED</span></div><button onclick="toggleSound()" id="soundBtn" class="text-[10px] mt-2 bg-white/10 px-2 py-1 rounded">🔊 Sound ON</button></div>
  <div class="glass px-3 py-2 text-xs min-w-[155px] text-center"><p id="walletShort">Connect Wallet</p><div id="ton-connect" class="mt-2"></div><button onclick="disconnectWallet()" class="w-full mt-2 bg-red-500/20 border border-red-500/40 text-red-300 py-1.5 rounded-lg text-[11px] font-bold">Disconnect</button></div></div>
  <div id="verificationCard" class="glass p-4 mt-4 border border-cyan-500/40"><div class="flex justify-between"><div><b>🔐 Wallet Verification</b><p id="verificationStatus" class="text-xs text-cyan-300 mt-1">Not verified</p></div><span id="verificationIcon">🔐</span></div><p class="text-xs text-white/60 mt-3">Send 0.1 TON to verify and unlock mining. Verification is completed instantly after Tonkeeper confirms the payment.</p><button id="verifyBtn" onclick="verifyAccount()" class="w-full gold-gradient py-3 rounded-xl mt-4">VERIFY WITH 0.1 TON</button></div>
- <div class="text-center mt-5"><p class="text-xs tracking-[.3em] text-white/50">MINING (AUTO ONLY)</p><h1 class="text-3xl font-bold mt-1"><span id="miningBalance">0.0000</span> <span class="text-cyan-300 text-xl">ZQR</span></h1><p class="text-[11px] text-white/40 mt-1">Auto-mining active • No tapping required</p><div class="glass mt-3 py-2 px-4 inline-block text-xs">APP POOL BALANCE: <b id="pool" class="text-green-400">0.0000</b> ZQR <span id="poolUsd" class="text-green-400"></span></div><p class="text-xs mt-2">ZYQORIX Price: <a href="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT" target="_blank" class="text-green-400 underline"><span id="livePrice">$0.00000000 USDT</span> ↗</a></p><p class="text-xs mt-1"><a href="https://app.ston.fi/swap?chartVisible=false&ft=GRAM&tt=EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_" target="_blank" class="text-cyan-300 underline">Trade ZQR on STON.fi →</a></p><p class="text-xs mt-1"><a href="https://app.ston.fi/swap?chartVisible=false&ft=GRAM&tt=EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_" target="_blank" class="text-white/50 underline">View Pool & Swap</a></p><p class="text-xs mt-2 text-white/60">Mined Today: <span id="minedTodayShow" class="text-cyan-300">0.00</span> / <span id="dailyCapShow">3.00</span> ZQR</p><div class="w-full bg-white/10 rounded-full h-2 mt-2"><div id="dailyProgressBar" class="bg-cyan-400 h-2 rounded-full" style="width:0%"></div></div><p id="miningPlus" class="text-2xl font-bold text-green-400 mt-3">+0.000035 /sec</p><div class="mt-6 coin"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png"></div><button id="claimBtn" onclick="claimMining()" class="w-full blue-btn py-4 rounded-xl mt-8 text-lg">CLAIM TO POOL</button><p class="text-xs text-white/40 mt-3">Power: <span id="power">3.02</span> TH/s | <span id="rateShow">0.000035</span>/sec | <span id="dayRate">3.00/day</span></p></div>
+ <div class="text-center mt-5"><p class="text-xs tracking-[.3em] text-white/50">MINING (AUTO ONLY)</p><h1 class="text-3xl font-bold mt-1"><span id="miningBalance">0.0000</span> <span class="text-cyan-300 text-xl">ZQR</span></h1><p class="text-[11px] text-white/40 mt-1">Auto-mining active • No tapping required</p><div class="glass mt-3 py-2 px-4 inline-block text-xs">APP POOL BALANCE: <b id="pool" class="text-green-400">0.0000</b> ZQR <span id="poolUsd" class="text-green-400"></span></div><p class="text-xs mt-2">ZYQORIX Price: <span id="livePrice" class="text-green-400">$0.00000000 USDT</span></p><p class="text-xs mt-1"><a href="https://app.ston.fi/swap?chartVisible=false&ft=GRAM&tt=EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_" target="_blank" class="text-cyan-300 underline">Trade ZQR on STON.fi →</a></p><p class="text-xs mt-2 text-white/60">Mined Today: <span id="minedTodayShow" class="text-cyan-300">0.00</span> / <span id="dailyCapShow">3.00</span> ZQR</p><div class="w-full bg-white/10 rounded-full h-2 mt-2"><div id="dailyProgressBar" class="bg-cyan-400 h-2 rounded-full" style="width:0%"></div></div><p id="miningPlus" class="text-2xl font-bold text-green-400 mt-3">+0.000035 /sec</p><div class="mt-6 coin"><img src="https://raw.githubusercontent.com/vantaminerbot-hue/ZYQORIX/main/file_0000000025008210b48f7f9cd7ade60b.png"></div><button id="claimBtn" onclick="claimMining()" class="w-full blue-btn py-4 rounded-xl mt-8 text-lg">CLAIM TO POOL</button><p class="text-xs text-white/40 mt-3">Power: <span id="power">3.02</span> TH/s | <span id="rateShow">0.000035</span>/sec | <span id="dayRate">3.00/day</span></p></div>
 </div>
 <div id="tasks-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-2xl font-bold text-center">Earn Rewards</h1>
  <div class="glass p-4 mt-4"><div class="flex justify-between items-center"><div><b>📅 Daily Check-In</b><p class="text-xs text-cyan-300" id="dailyCheckStreak">Day 1 • +5 ZQR</p></div><button id="dailyCheckBtn" onclick="claimDailyCheck()" class="bg-cyan-400 text-black px-4 py-2 rounded-full text-xs font-bold">Claim +5</button></div><div id="dailyCheckDays" class="flex justify-between mt-3 gap-1"></div><p id="dailyCheckTimer" class="text-[10px] text-white/50 mt-2 text-center">Ready!</p></div>
  <div class="mt-4 space-y-3">
  <div class="glass p-4"><div class="flex justify-between items-center gap-2"><div><b class="text-sm">💬 Join ZYQORIX Channel *</b><p class="text-xs text-white/50">+5 ZQR • Once • Required</p><p id="joinTimer" class="text-[10px] text-cyan-300">Ready!</p></div><button onclick="openTaskLink('https://t.me/ZYQORIX')" class="bg-white text-black px-4 py-2 rounded-full text-xs font-bold">Join</button></div><button id="taskBtn1" onclick="claimJoinTask()" class="w-full bg-cyan-400 text-black py-2 rounded-lg text-xs font-bold mt-2">CLAIM +5 AFTER JOINING</button></div>
  <div class="glass p-4"><div class="flex justify-between items-center gap-2"><div><b class="text-sm">❤️ React to Latest Post</b><p class="text-xs text-white/50">+5 ZQR • Every 12hrs</p><p id="reactTimer" class="text-[10px] text-pink-300">Ready!</p></div><button onclick="openTaskLink('https://t.me/ZYQORIX')" class="bg-pink-400 text-black px-4 py-2 rounded-full text-xs font-bold">React</button></div><button id="reactBtn" onclick="claimReactTask()" class="w-full bg-pink-400 text-black py-2 rounded-lg text-xs font-bold mt-2">CLAIM +5 AFTER REACTING</button><p class="text-[10px] text-white/40 mt-2">React ❤️ to the latest post, return here, and claim your reward.</p></div>
- <div class="glass p-4 border border-purple-400/40"><b class="text-sm">🏷️ Add @ZYQORIX_BOT to Your Telegram Name</b><p class="text-xs text-white/50 mt-1">+5 ZQR • Every 72hrs • Verified automatically</p><div class="bg-black/30 rounded-lg p-2 text-xs mt-2">Example: <b class="text-cyan-300">King @ZYQORIX_BOT</b><br><span class="text-white/50">Your current name: <b id="tgNameCheck" class="text-white">Loading...</b></span></div><p class="text-[11px] text-white/60 mt-2">1. Go to Telegram Settings → Edit Profile<br>2. Add <b class="text-cyan-300">@ZYQORIX_BOT</b> to your name<br>3. <b>Close this Mini App completely</b> and reopen it<br>4. Tap CLAIM - your updated name will be verified automatically</p><div class="flex gap-2 mt-3"><button onclick="copyBioLink()" class="flex-1 bg-purple-500 py-2 rounded-lg text-xs font-bold">Copy @ZYQORIX_BOT</button><button id="bioBtn" onclick="claimNameTask()" class="flex-1 bg-white text-black py-2 rounded-lg text-xs font-bold">Claim +5</button></div><p id="bioTimer" class="text-[10px] text-purple-300 mt-2">Add it to your name, close and reopen the app, then claim.</p></div>
-
+ <div class="glass p-4 border border-purple-400/40">
+   <h3 class="text-sm font-bold task-name">🏷️ Add @ZYQORIX_BOT to Your Telegram Name</h3>
+   <p class="text-xs text-white/50 mt-1">+5 ZQR • Every 72hrs • Verified automatically</p>
+   <div class="bg-black/30 rounded-lg p-3 text-xs mt-3 task-name">
+     <p class="text-white/60">Your current Telegram name:</p>
+     <p class="font-bold text-white text-sm mt-1 task-name" id="tgNameCheck">Loading...</p>
+     <p class="text-white/40 mt-1" id="tgUsernameCheck"></p>
+   </div>
+   <div class="text-[11px] text-white/60 mt-3 leading-relaxed">
+     <p><b class="text-white">How to complete:</b></p>
+     <p class="mt-1">1. Open Telegram Settings → Edit Profile</p>
+     <p>2. Edit your <b class="text-white">First Name</b> and add <b class="text-cyan-300">@ZYQORIX_BOT</b> to it</p>
+     <p>3. Close this Mini App completely and reopen it</p>
+     <p>4. Tap CLAIM. Your updated name will be verified automatically.</p>
+   </div>
+   <div class="flex gap-2 mt-3"><button onclick="copyBioLink()" class="flex-1 bg-purple-500 py-2 rounded-lg text-xs font-bold">Copy @ZYQORIX_BOT</button><button id="bioBtn" onclick="claimNameTask()" class="flex-1 bg-white text-black py-2 rounded-lg text-xs font-bold">Claim +5</button></div>
+   <p id="bioTimer" class="text-[10px] text-purple-300 mt-2">Add it to your name, close and reopen the app, then claim.</p>
+ </div>
  <div class="glass p-4 mt-4"><b class="text-sm">💎 Holder Rewards</b><p class="text-xs text-white/50 mt-1">Your on-chain balance is verified automatically. Hold ZQR in your connected wallet to qualify.</p><p class="text-xs mt-2">Your On-Chain Balance: <b id="holderBalance" class="text-green-400">0.00 ZQR</b></p><button onclick="refreshOnchain()" class="bg-white/10 border border-white/20 px-3 py-1.5 rounded-lg text-[11px] font-bold mt-2">Refresh Balance</button></div>
-
  <div class="glass p-4 border border-yellow-400/40"><div class="flex justify-between items-start gap-2"><div><b class="text-sm">🥉 Hold 25,000 ZQR On-Chain</b><p class="text-xs text-white/50 mt-1">Earn 25 ZQR • Every 48hrs</p><p class="text-xs text-yellow-300 mt-1">Requirement: Hold at least 25,000 ZQR in your connected wallet.</p><p id="hold25Timer" class="text-[10px] text-yellow-300 mt-1">Ready!</p></div><span class="bg-yellow-400 text-black text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap">+25 ZQR</span></div><button onclick="claimHoldingTask(25000,25,48,'hold25')" class="w-full bg-yellow-400 text-black py-2 rounded-lg text-xs font-bold mt-3">CLAIM +25 ZQR</button></div>
-
  <div class="glass p-4 border border-cyan-400/40"><div class="flex justify-between items-start gap-2"><div><b class="text-sm">🥈 Hold 50,000 ZQR On-Chain</b><p class="text-xs text-white/50 mt-1">Earn 50 ZQR • Every 48hrs</p><p class="text-xs text-cyan-300 mt-1">Requirement: Hold at least 50,000 ZQR in your connected wallet.</p><p id="hold50Timer" class="text-[10px] text-cyan-300 mt-1">Ready!</p></div><span class="bg-cyan-400 text-black text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap">+50 ZQR</span></div><button onclick="claimHoldingTask(50000,50,48,'hold50')" class="w-full bg-cyan-400 text-black py-2 rounded-lg text-xs font-bold mt-3">CLAIM +50 ZQR</button></div>
-
  <div class="glass p-4 border border-purple-400/40"><div class="flex justify-between items-start gap-2"><div><b class="text-sm">🥇 Hold 100,000 ZQR On-Chain</b><p class="text-xs text-white/50 mt-1">Earn 100 ZQR • Every 72hrs</p><p class="text-xs text-purple-300 mt-1">Requirement: Hold at least 100,000 ZQR in your connected wallet.</p><p id="hold100Timer" class="text-[10px] text-purple-300 mt-1">Ready!</p></div><span class="bg-purple-400 text-black text-xs px-3 py-1 rounded-full font-bold whitespace-nowrap">+100 ZQR</span></div><button onclick="claimHoldingTask(100000,100,72,'hold100')" class="w-full bg-purple-400 text-black py-2 rounded-lg text-xs font-bold mt-3">CLAIM +100 ZQR</button></div>
-
  </div>
 </div>
 <div id="miners-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h2 class="text-center text-white/60 text-xs tracking-widest mb-3">MINERS LVL 1 - 1000 • STAIRCASE</h2><div class="glass p-3 mb-4 flex justify-between text-xs"><p>Your Level: <b id="myLevelShow" class="text-cyan-300">1</b> / 1000</p><p>Speed: <b id="mySpeedShow" class="text-green-400">3.00 /day</b></p></div><div id="minersGrid" class="space-y-2"></div><button onclick="loadMoreMiners()" class="w-full glass py-3 rounded-xl mt-4 text-xs">Load More ▼</button></div>
-<div id="friends-page" class="hidden p-4 max-w-md mx-auto relative z-10"><div class="glass p-4"><b>Your Invite Link</b><p id="refLink" class="text-xs text-white/50 break-all mt-2"></p><button onclick="copyRef()" class="blue-btn px-4 py-2 rounded-full text-xs mt-2">Copy</button></div><div class="glass p-4 mt-3"><b>Your Referrals</b><p class="text-xs text-white/50"><span id="refCount">0</span> total</p><div id="refList" class="mt-3 text-xs text-white/60">Share your link. You earn rewards when your friends verify and mine.</div></div><div class="glass p-4 mt-3"><b>Referral Reward</b><p id="refRewardText" class="text-xs text-white/50">100 ZQR after 3 active days and wallet verification.</p><p id="refEarned" class="text-xs">0 ZQR</p><button onclick="claimReferral()" id="claimReferralBtn" class="bg-white/20 px-4 py-2 rounded-full text-xs mt-2">Claim</button></div><div class="glass p-4 mt-3"><b>Team Wallet (5%)</b><p id="teamWalletText" class="text-xs text-blue-200">Team rewards from your referrals mining</p><button onclick="claimTeamWallet()" id="claimTeamBtn" class="blue-btn px-4 py-2 rounded-full text-xs mt-2">Claim to Pool</button></div></div>
+<div id="friends-page" class="hidden p-4 max-w-md mx-auto relative z-10">
+<div class="glass p-4"><b>Your Invite Link</b><p id="refLink" class="text-xs text-white/50 break-all mt-2"></p><button onclick="copyRef()" class="blue-btn px-4 py-2 rounded-full text-xs mt-2">Copy</button></div>
+<div class="glass p-4 mt-3"><b>Your Referrals</b><p class="text-xs text-white/50"><span id="refCount">0</span> total • <span id="refQualifiedCount" class="text-green-400">0 qualified</span> • <span id="refUnqualifiedCount" class="text-red-300">0 unqualified</span></p><div id="refList" class="mt-3 space-y-2"></div><p class="text-[11px] text-white/40 mt-3">A referral is Unqualified until they verify their wallet and complete 3 active mining days. Once Qualified, you can claim their reward.</p></div>
+<div class="glass p-4 mt-3"><b>Referral Reward</b><p id="refRewardText" class="text-xs text-white/50">100 ZQR per qualified referral, after 3 active days and wallet verification.</p><p id="refEarned" class="text-xs mt-1">0 ZQR earned</p><button onclick="claimReferral()" id="claimReferralBtn" class="bg-white/20 px-4 py-2 rounded-full text-xs mt-2" disabled>Claim Referral Reward</button><p id="refClaimHint" class="text-[11px] text-yellow-300 mt-2">No qualified referrals yet. Your referrals must complete the requirements first.</p></div>
+<div class="glass p-4 mt-3"><b>Team Wallet (5%)</b><p id="teamWalletText" class="text-xs text-blue-200">Team rewards from your referrals mining</p><button onclick="claimTeamWallet()" id="claimTeamBtn" class="blue-btn px-4 py-2 rounded-full text-xs mt-2">Claim to Pool</button></div>
+</div>
 <div id="profile-page" class="hidden p-4 max-w-md mx-auto relative z-10"><h1 class="text-xl font-bold text-center">Profile</h1><div class="vault-card mt-4"><p class="text-[10px]">COMBINED HOLDING • DECIDES YOUR LEVEL</p><h1 class="text-3xl font-black mt-2"><span id="combinedBalance">0.00</span> ZQR</h1><p class="text-xs mt-1">≈ $<span id="combinedUsd">0.00</span></p><p class="text-xs mt-2">Level <span id="combinedLevel">1</span> (MAX 1000)</p><div class="glass p-3 mt-3 flex justify-between"><div><p class="text-[10px]">In-app Pool</p><b id="balProfile">0</b></div><div><p class="text-[10px]">On-chain Balance</p><b id="balProfileOnchain">0.00</b></div></div></div><div class="glass p-4 mt-3"><b>Connected Wallet</b><p id="walletDisplayProfile" class="text-xs text-white/50 mt-1">Not connected</p><button onclick="disconnectWallet()" class="bg-red-500/20 text-red-300 px-3 py-2 rounded-full text-xs mt-2">Disconnect</button></div><div class="glass p-4 mt-3"><b>Mining (Unclaimed)</b><p><span id="miningProfile">0</span> ZQR</p></div><div class="glass p-4 mt-3"><b>Withdraw History</b><div id="withdrawHistory" class="mt-2 text-xs text-white/40">No withdrawals yet.</div></div><div class="glass p-4 mt-3"><b>Withdraw</b><p class="text-xs text-white/60 mt-1">Exactly 2,000 ZQR • Fee 70 ZQR • 1 per 24hrs • Wallet must hold at least 2,000 ZQR on-chain.</p><p id="withdrawCooldownText" class="text-xs text-yellow-300 mt-2">Ready to withdraw when you have 2,000 ZQR on-chain.</p><p class="text-xs text-blue-300 mt-1">You receive: <b id="receiveAmt">1930</b> ZQR</p><input id="withdrawAmt" type="number" min="2000" max="2000" value="2000" class="w-full mt-2 p-3 rounded-xl bg-black/40 border border-white/10 text-white"><button onclick="withdraw()" id="withdrawBtn" class="w-full bg-white text-black mt-3 py-3 rounded-xl font-bold">Request Withdrawal</button></div><div class="glass p-4 mt-3 text-[11px]"><b>User ID</b><p id="userIdShow" class="text-white/50"></p><p class="mt-3 break-all">Token: EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_</p><a href="https://app.ston.fi/swap?chartVisible=false&ft=GRAM&tt=EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_" target="_blank" class="text-cyan-300 underline">Trade on STON.fi</a></div></div>
 <div class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-white/10 flex justify-around p-2 max-w-md mx-auto z-50"><button onclick="showPage('mine')" id="nav-mine" class="nav-active flex flex-col items-center"><span>⛏️</span><span class="text-[10px]">Mine</span></button><button onclick="showPage('tasks')" id="nav-tasks" class="flex flex-col items-center opacity-60"><span>📝</span><span class="text-[10px]">Tasks</span></button><button onclick="showPage('miners')" id="nav-miners" class="flex flex-col items-center opacity-60"><span>⚡</span><span class="text-[10px]">Miners</span></button><button onclick="showPage('friends')" id="nav-friends" class="flex flex-col items-center opacity-60"><span>👥</span><span class="text-[10px]">Friends</span></button><button onclick="showPage('profile')" id="nav-profile" class="flex flex-col items-center opacity-60"><span>👤</span><span class="text-[10px]">Profile</span></button></div>
 <script>
@@ -55,25 +75,28 @@ const OWNER_WALLET="UQCbXnjJ-vVo3oGtovId9TRs_H-O3CO9irjgazyk8F39_XOu";
 const BOT_LINK="https://t.me/ZYQORIX_BOT", BOT_HANDLE="@ZYQORIX_BOT", VERIFY_NANO="100000000";
 const WITHDRAW_FEE=70, WITHDRAW_COOLDOWN=86400000, NAME_COOLDOWN=259200000, REACT_COOLDOWN=43200000, JOIN_COOLDOWN=86400000;
 const SWAP_URL="https://app.ston.fi/swap?chartVisible=false&ft=GRAM&tt=EQCBMwnuTtN4Sfncxd-R4EjQkgk3WTEIhZFxYfYPLXMyEVY_";
-const POOL_URL="https://app.ston.fi/pools/EQDDCr-y9E44lS_zaVrLC86LBHLhD7U6Bn-Vo2WonMRVrEeT";
 const tg=window.Telegram?.WebApp||null;
 if(tg){tg.ready();tg.expand();}
 const user=tg?.initDataUnsafe?.user||{};
 const telegramUserId=String(user.id||localStorage.getItem("zqr_tgId")||("id_"+Math.floor(Math.random()*1e7)));
 const tgId=telegramUserId;
 localStorage.setItem("zqr_tgId",tgId);
-const tgName=user.first_name||user.username||localStorage.getItem("zqr_tgName")||"Miner";
+const tgFirstName=user.first_name||"";
+const tgLastName=user.last_name||"";
+const tgName=(tgFirstName||user.username||localStorage.getItem("zqr_tgName")||"Miner").trim();
 const tgUsername=user.username||"";
-const tgFullName=((user.first_name||"")+" "+(user.last_name||"")+" "+(user.username||"")).trim();
+const tgDisplayName=(tgFirstName+" "+tgLastName).trim() || tgName;
+const tgFullNameForCheck=(tgFirstName+" "+tgLastName).trim().toLowerCase();
 document.getElementById("userName").textContent=tgName+"’s Miner";
 document.getElementById("userIdShow").textContent=tgId;
 document.getElementById("refLink").textContent="https://t.me/ZYQORIX_BOT?start="+tgId;
-document.getElementById("tgNameCheck").textContent=tgFullName||tgName;
+document.getElementById("tgNameCheck").textContent=tgDisplayName;
+document.getElementById("tgUsernameCheck").textContent=tgUsername ? "@"+tgUsername+" (username is not checked for this task)" : "";
 let poolBalance=Math.max(0,Number(localStorage.getItem("zqr_balance")||0));
 let miningPending=Math.max(0,Number(localStorage.getItem("zqr_mining_pending")||0));
 let currentMinerLevel=Math.max(1,Math.min(1000,Number(localStorage.getItem("zqr_miner_level")||1)));
 let onChainBalance=Number(localStorage.getItem("zqr_onchain_cached")||0);
-let livePriceUsd=Number(localStorage.getItem("zqr_last_real_price")||0.00001409);
+let livePriceUsd=Number(localStorage.getItem("zqr_last_real_price")||0);
 let connectedWalletAddress="",tonConnectUI=null,visibleLevels=20,isClaiming=false;
 const save=()=>{localStorage.setItem("zqr_balance",String(poolBalance));localStorage.setItem("zqr_mining_pending",String(miningPending));localStorage.setItem("zqr_miner_level",String(currentMinerLevel));};
 const num=(x)=>Number.isFinite(Number(x))?Number(x):0;
@@ -138,15 +161,16 @@ function updateUI(){
  document.getElementById("combinedUsd").textContent=(combined*livePriceUsd).toFixed(4);
  document.getElementById("combinedLevel").textContent=currentMinerLevel;
  document.getElementById("poolUsd").textContent="≈ $"+(poolBalance*livePriceUsd).toFixed(4);
- document.getElementById("livePrice").textContent="$"+livePriceUsd.toFixed(8)+" USDT";
+ if(livePriceUsd>0) document.getElementById("livePrice").textContent="$"+livePriceUsd.toFixed(8)+" USDT";
  document.getElementById("claimBtn").disabled=!v;
  document.getElementById("claimBtn").textContent=v?"CLAIM TO POOL":"VERIFY WALLET TO MINE";
  document.getElementById("joinStatusBadge").textContent=localStorage.getItem("zqr_task_join_done")?"● JOINED":"● NOT JOINED";
  document.getElementById("joinStatusBadge").className=localStorage.getItem("zqr_task_join_done")?"bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full":"bg-red-500/20 text-red-400 text-xs px-3 py-1 rounded-full";
  const holderEl=document.getElementById("holderBalance");
  if(holderEl) holderEl.textContent=onChainBalance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+" ZQR";
+ renderReferrals();
 }
-function showPage(page){["mine","tasks","miners","friends","profile"].forEach(p=>{document.getElementById(p+"-page").classList.toggle("hidden",p!==page);const nav=document.getElementById("nav-"+p);nav.classList.toggle("nav-active",p===page);nav.classList.toggle("opacity-60",p!==page);});if(page==="miners")renderMiners();if(page==="profile")updateUI();}
+function showPage(page){["mine","tasks","miners","friends","profile"].forEach(p=>{document.getElementById(p+"-page").classList.toggle("hidden",p!==page);const nav=document.getElementById("nav-"+p);nav.classList.toggle("nav-active",p===page);nav.classList.toggle("opacity-60",p!==page);});if(page==="miners")renderMiners();if(page==="profile")updateUI();if(page==="friends")renderReferrals();}
 function claimMining(){
  if(!connectedWalletAddress){alert("Please connect your TON wallet first.");return;}
  if(!verified()){alert("Please verify your wallet before mining.");return;}
@@ -167,9 +191,7 @@ async function refreshOnchain(){
     onChainBalance=Number(found.balance)/Math.pow(10,dec);
     localStorage.setItem("zqr_onchain_cached",String(onChainBalance));
     updateUI();
-  } else {
-    onChainBalance=0; updateUI();
-  }
+  } else { onChainBalance=0; updateUI(); }
  }catch(e){console.log("TonAPI on-chain balance is unavailable. Using cached balance.",e);}
 }
 function renderMiners(){const grid=document.getElementById("minersGrid");grid.innerHTML="";const combined=poolBalance+onChainBalance;const end=Math.min(1000,visibleLevels);for(let level=1;level<=end;level++){const required=level===1?0:Math.round(100+(level-2)*500000/998);const unlocked=combined>=required||level<=currentMinerLevel;const card=document.createElement("div");card.className="glass p-3 flex justify-between items-center gap-2";card.innerHTML=`<div><b class="text-sm">⚡ Miner Level ${level}</b><p class="text-[10px] text-white/50">Required balance: ${required.toLocaleString()} ZQR</p><p class="text-[10px] ${unlocked?"text-green-400":"text-cyan-300"}">${unlocked?"UNLOCKED":"LOCKED"}</p></div><span class="text-xs font-bold">${level<=currentMinerLevel?"ACTIVE":unlocked?"AVAILABLE":"🔒"}</span>`;grid.appendChild(card);}}
@@ -193,23 +215,18 @@ function claimReactTask(){
 function claimNameTask(){
  const last=Number(localStorage.getItem("zqr_last_name")||0);
  if(Date.now()-last<NAME_COOLDOWN){alert("You have already claimed this reward. Please return in 72 hours.");return;}
- const full=(tgFullName+" "+tgName).toLowerCase();
- if(!full.includes("zyqorix_bot")){
-   alert("You have not added @ZYQORIX_BOT to your name yet.\n\nPlease go to Telegram Settings, select Edit Profile, and add @ZYQORIX_BOT to your name.\n\nExample: King @ZYQORIX_BOT\n\nThen close this Mini App completely, reopen it, and tap CLAIM.");
+ if(!tgFullNameForCheck.includes("zyqorix_bot")){
+   alert("You have not added @ZYQORIX_BOT to your name yet.\n\nCurrent name detected: "+tgDisplayName+"\n\nPlease go to Telegram Settings, select Edit Profile, edit your First Name, and add @ZYQORIX_BOT to it.\n\nThen close this Mini App completely, reopen it, and tap CLAIM.");
    return;
  }
  localStorage.setItem("zqr_last_name",String(Date.now())); poolBalance+=5; save(); playSound(); updateUI(); updateNameUI();
  alert("Verification successful. +5 ZQR has been awarded for adding @ZYQORIX_BOT to your name.");
 }
-// HOLDER REWARDS - Verified by real on-chain balance
 function claimHoldingTask(required, reward, hours, key){
  if(!connectedWalletAddress){alert("Please connect your TON wallet first.");return;}
  const cooldownMs = hours*3600*1000;
  const last=Number(localStorage.getItem("zqr_"+key)||0);
- if(Date.now()-last < cooldownMs){
-   alert("You have already claimed this holder reward. Please return in "+hours+" hours.");
-   return;
- }
+ if(Date.now()-last < cooldownMs){ alert("You have already claimed this holder reward. Please return in "+hours+" hours."); return; }
  if(onChainBalance < required){
    alert("You do not qualify yet.\n\nRequirement: Hold at least "+required.toLocaleString()+" ZQR on-chain in your connected wallet.\n\nYour current on-chain balance: "+onChainBalance.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+" ZQR.\n\nPlease purchase ZQR on STON.fi, then tap Refresh Balance and try again.");
    return;
@@ -219,11 +236,7 @@ function claimHoldingTask(required, reward, hours, key){
  alert("Congratulations. +"+reward+" ZQR has been awarded for holding "+required.toLocaleString()+" ZQR on-chain.");
 }
 function updateHoldingUI(){
- const configs=[
-   {key:"hold25", hours:48, el:"hold25Timer"},
-   {key:"hold50", hours:48, el:"hold50Timer"},
-   {key:"hold100", hours:72, el:"hold100Timer"}
- ];
+ const configs=[{key:"hold25", hours:48, el:"hold25Timer"},{key:"hold50", hours:48, el:"hold50Timer"},{key:"hold100", hours:72, el:"hold100Timer"}];
  configs.forEach(c=>{
    const last=Number(localStorage.getItem("zqr_"+c.key)||0);
    const remaining=c.hours*3600*1000-(Date.now()-last);
@@ -255,7 +268,73 @@ function updateNameUI(){
 }
 function claimDailyCheck(){const today=dayKey();if(localStorage.getItem("zqr_checkin_"+tgId)===today){alert("You have already claimed today's check-in.");return;}poolBalance+=5;localStorage.setItem("zqr_checkin_"+tgId,today);save();playSound();updateUI();document.getElementById("dailyCheckBtn").disabled=true;document.getElementById("dailyCheckBtn").textContent="Claimed ✓";alert("You have received 5 ZQR.");}
 function updateDailyCheck(){const claimed=localStorage.getItem("zqr_checkin_"+tgId)===dayKey();const btn=document.getElementById("dailyCheckBtn");btn.disabled=claimed;btn.textContent=claimed?"Claimed ✓":"Claim +5";document.getElementById("dailyCheckTimer").textContent=claimed?"Please return tomorrow.":"Your daily reward is ready.";}
-function claimReferral(){alert("Referral reward: Share your link. When your friends verify and mine for 3 active days, you will be eligible to claim 100 ZQR. Keep inviting.");}
+function getReferrals(){
+  try{ const list=JSON.parse(localStorage.getItem("zqr_my_referrals")||"[]"); return Array.isArray(list)?list:[]; }catch(e){ return []; }
+}
+function saveReferrals(list){ localStorage.setItem("zqr_my_referrals", JSON.stringify(list)); }
+function isReferralQualified(r){ return r.verified===true && Number(r.activeDays||0)>=3; }
+function renderReferrals(){
+  const list=getReferrals();
+  const container=document.getElementById("refList");
+  const countEl=document.getElementById("refCount");
+  const qualEl=document.getElementById("refQualifiedCount");
+  const unqualEl=document.getElementById("refUnqualifiedCount");
+  const claimBtn=document.getElementById("claimReferralBtn");
+  const hint=document.getElementById("refClaimHint");
+  const earnedEl=document.getElementById("refEarned");
+  if(!container) return;
+  const qualified=list.filter(isReferralQualified);
+  const unqualified=list.filter(r=>!isReferralQualified(r));
+  const alreadyClaimedIds=JSON.parse(localStorage.getItem("zqr_ref_claimed_ids")||"[]");
+  const unclaimedQualified=qualified.filter(r=>!alreadyClaimedIds.includes(String(r.id)));
+  if(countEl) countEl.textContent=list.length;
+  if(qualEl) qualEl.textContent=qualified.length+" qualified";
+  if(unqualEl) unqualEl.textContent=unqualified.length+" unqualified";
+  if(earnedEl) earnedEl.textContent=(alreadyClaimedIds.length*100)+" ZQR earned";
+  if(list.length===0){
+    container.innerHTML='<p class="text-xs text-white/50">No referrals yet. Share your invite link to invite friends. When they join, their name will appear here as Unqualified until they complete the requirements.</p>';
+  } else {
+    container.innerHTML="";
+    list.forEach(r=>{
+      const q=isReferralQualified(r);
+      const claimed=alreadyClaimedIds.includes(String(r.id));
+      const div=document.createElement("div");
+      div.className="bg-black/30 rounded-lg p-3 flex justify-between items-center gap-2";
+      div.innerHTML=`<div><p class="font-bold text-sm">${r.name||"Unknown User"}</p><p class="text-[11px] text-white/50">${r.activeDays||0}/3 active days • ${r.verified?"Wallet Verified":"Wallet Not Verified"}${claimed?" • Reward Claimed":""}</p></div><span class="${q?"badge-qualified":"badge-unqualified"}">${q?"QUALIFIED":"UNQUALIFIED"}</span>`;
+      container.appendChild(div);
+    });
+  }
+  if(claimBtn){
+    if(unclaimedQualified.length>0){
+      claimBtn.disabled=false;
+      claimBtn.textContent="Claim "+(unclaimedQualified.length*100)+" ZQR ("+unclaimedQualified.length+" qualified)";
+      claimBtn.className="bg-green-400 text-black px-4 py-2 rounded-full text-xs mt-2 font-bold";
+    } else {
+      claimBtn.disabled=true;
+      claimBtn.textContent="Claim Referral Reward";
+      claimBtn.className="bg-white/20 px-4 py-2 rounded-full text-xs mt-2";
+    }
+  }
+  if(hint){
+    if(unclaimedQualified.length>0) hint.textContent="You have "+unclaimedQualified.length+" qualified referral(s). You can claim now.";
+    else if(list.length===0) hint.textContent="No qualified referrals yet. Share your link to invite friends.";
+    else hint.textContent="Your referrals are still Unqualified. They must verify their wallet and complete 3 active mining days.";
+  }
+}
+function claimReferral(){
+  const list=getReferrals();
+  const claimedIds=JSON.parse(localStorage.getItem("zqr_ref_claimed_ids")||"[]");
+  const unclaimed=list.filter(r=>isReferralQualified(r) && !claimedIds.includes(String(r.id)));
+  if(unclaimed.length===0){
+    alert("You have no qualified referrals yet.\n\nEach referral must:\n1. Verify their wallet\n2. Complete 3 active mining days\n\nUntil then, they will show as Unqualified and you cannot claim.");
+    return;
+  }
+  const reward=unclaimed.length*100;
+  unclaimed.forEach(r=>claimedIds.push(String(r.id)));
+  localStorage.setItem("zqr_ref_claimed_ids", JSON.stringify(claimedIds));
+  poolBalance+=reward; save(); playSound(); updateUI(); renderReferrals();
+  alert("Congratulations. You have claimed "+reward+" ZQR for "+unclaimed.length+" qualified referral(s).");
+}
 function claimTeamWallet(){alert("Team Wallet: You earn 5% of your referrals' mining rewards. This amount will be added to your pool automatically when your team mines.");}
 async function withdraw(){
  if(!connectedWalletAddress){alert("Please connect your TON wallet first.");return;}
@@ -272,8 +351,43 @@ async function withdraw(){
  alert("Withdrawal request submitted successfully. The admin will process it within 24 hours. You will receive 1,930 ZQR.");
  button.disabled=false;button.textContent="Request Withdrawal";
 }
-async function loadPrice(){try{const response=await fetch("https://api.dexscreener.com/latest/dex/tokens/"+encodeURIComponent(TOKEN));if(!response.ok)throw new Error("Price unavailable");const data=await response.json();const pair=data.pairs?.find(p=>p.chainId==="ton"&&p.priceUsd);if(pair){livePriceUsd=Number(pair.priceUsd);localStorage.setItem("zqr_last_real_price",String(livePriceUsd));updateUI();}}catch(e){console.log("Could not load live token price",e);}}
-function initializeApp(){document.getElementById("soundBtn").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";initTonConnect();updateUI();updateDailyCheck();updateReactUI();updateJoinUI();updateNameUI();updateHoldingUI();renderMiners();startMining();loadPrice();setInterval(updateReactUI,1000);setInterval(updateNameUI,1000);setInterval(updateHoldingUI,1000);setInterval(updateJoinUI,5000);setInterval(updateDailyCheck,10000);setInterval(loadPrice,60000);}
+async function loadPrice(){
+ try{
+  const res=await fetch("https://api.ston.fi/v1/pools?pool_address="+POOL);
+  const data=await res.json();
+  const pool=data.pool_list && data.pool_list[0] ? data.pool_list[0] : data.pool || null;
+  if(pool && pool.token0_balance && pool.token1_balance){
+    const isToken0ZQR = (pool.token0_address===TOKEN || pool.token0_symbol==="ZQR");
+    const zqrReserve = Number(isToken0ZQR ? pool.token0_balance : pool.token1_balance) / 1e9;
+    const gramReserve = Number(isToken0ZQR ? pool.token1_balance : pool.token0_balance) / 1e9;
+    if(zqrReserve>0 && gramReserve>0){
+      let gramPrice=1.06;
+      try{
+        const gr=await fetch("https://api.dexscreener.com/latest/dex/tokens/EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOTGRAM");
+        const gj=await gr.json();
+        const gp=gj.pairs?.find(p=>p.priceUsd);
+        if(gp) gramPrice=Number(gp.priceUsd);
+      }catch(e){}
+      const zqrPrice = (gramReserve * gramPrice) / zqrReserve;
+      if(zqrPrice>0 && zqrPrice<1){
+        livePriceUsd=zqrPrice;
+        localStorage.setItem("zqr_last_real_price",String(livePriceUsd));
+        updateUI();
+        return;
+      }
+    }
+  }
+  throw new Error("Price data unavailable");
+ }catch(e){
+  try{
+    const response=await fetch("https://api.dexscreener.com/latest/dex/tokens/"+encodeURIComponent(TOKEN));
+    const data=await response.json();
+    const pair=data.pairs?.find(p=>p.chainId==="ton"&&p.priceUsd);
+    if(pair){livePriceUsd=Number(pair.priceUsd);localStorage.setItem("zqr_last_real_price",String(livePriceUsd));updateUI();}
+  }catch(err){console.log("Could not load live token price",err);}
+ }
+}
+function initializeApp(){document.getElementById("soundBtn").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";initTonConnect();updateUI();updateDailyCheck();updateReactUI();updateJoinUI();updateNameUI();updateHoldingUI();renderReferrals();renderMiners();startMining();loadPrice();setInterval(updateReactUI,1000);setInterval(updateNameUI,1000);setInterval(updateHoldingUI,1000);setInterval(updateJoinUI,5000);setInterval(updateDailyCheck,10000);setInterval(loadPrice,60000);}
 initializeApp();
 </script>
 </body>
