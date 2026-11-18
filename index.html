@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
 <style>
-body{background:radial-gradient(ellipse at 50% 0%,#4c1d95 0%,#0f0a2e 35%,#020617 70%,#000);color:#fff;padding-bottom:100px;font-family:'Segoe UI',sans-serif;min-height:100vh}
+body{background:radial-gradient(ellipse at 50% 0%,#4c1d95 0%,#0f0a2e 35%,#020617 100%);font-family:'Segoe UI',sans-serif;min-height:100vh;color:white}
 body:before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,#22d3ee20,transparent 40%),radial-gradient(circle at 80% 80%,#a855f730,transparent 40%);pointer-events:none}
 .glass{background:#ffffff14;backdrop-filter:blur(14px);border:1px solid #ffffff24;border-radius:16px;position:relative}
 .gold-gradient{background:linear-gradient(90deg,#22d3ee,#a855f7,#22d3ee);color:white;font-weight:900;box-shadow:0 5px 25px #a855f780}
@@ -111,7 +111,7 @@ function playSound(){if(!soundOn)return;try{audioCtx??=new(window.AudioContext||
 function toggleSound(){soundOn=!soundOn;localStorage.setItem("zqr_sound",soundOn?"on":"off");document.getElementById("soundBtn").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";playSound();}
 function initTonConnect(){
  if(tonConnectUI||!window.TON_CONNECT_UI?.TonConnectUI)return;
- tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://vantaminerbot-hue.github.io/ZYQORIX/tonconnect-manifest.json",buttonRootId:"ton-connect"});
+ tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:"https://zyqorix-jesus.vercel.app/tonconnect-manifest.json",buttonRootId:"ton-connect"});
  tonConnectUI.onStatusChange(w=>{
   connectedWalletAddress=w?.account?.address||"";
   if(connectedWalletAddress){localStorage.setItem("zqr_wallet",connectedWalletAddress);document.getElementById("walletShort").textContent=short(connectedWalletAddress);document.getElementById("walletDisplayProfile").textContent=short(connectedWalletAddress);refreshOnchain();}
